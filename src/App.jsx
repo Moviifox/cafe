@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import {
-  Home,
-  ShoppingBag,
-  Search,
-  User,
-  ChevronRight,
-  X,
-  Plus,
-  History,
-  QrCode,
+import { 
+  Home, 
+  ShoppingBag, 
+  Search, 
+  User, 
+  ChevronRight, 
+  X, 
+  Plus, 
+  History, 
+  QrCode, 
   ArrowLeft,
   LayoutGrid,
   Coffee,
@@ -31,8 +31,8 @@ import {
 // ฟังก์ชันช่วยจัดการสีโปร่งแสง
 const alpha = (hex, opacity) => {
   const alphaMap = {
-    '0': '00', '0.05': '0D', '0.1': '1A', '0.2': '33', '0.3': '4D',
-    '0.4': '66', '0.5': '80', '0.6': '99', '0.7': 'B3',
+    '0': '00', '0.05': '0D', '0.1': '1A', '0.2': '33', '0.3': '4D', 
+    '0.4': '66', '0.5': '80', '0.6': '99', '0.7': 'B3', 
     '0.8': 'CC', '0.85': 'D9', '0.9': 'E6', '0.95': 'F2', '1': 'FF'
   };
   return `${hex}${alphaMap[opacity] || 'FF'}`;
@@ -53,7 +53,7 @@ const MOCK_DATA = {
       const idx = i + 1;
       const category = ["กาแฟ", "ชา", "นม", "ผลไม้", "สมูทตี้", "อาหารว่าง", "จานหลัก"][i % 7];
       let typeOptions = [];
-
+      
       if (["กาแฟ", "ชา", "นม"].includes(category)) {
           typeOptions = [{ label: "ร้อน", price: 50 }, { label: "เย็น", price: 60 }, { label: "ปั่น", price: 70 }];
       } else if (["ผลไม้", "สมูทตี้"].includes(category)) {
@@ -64,7 +64,7 @@ const MOCK_DATA = {
 
       // Simulate Discount Logic (Every 3rd item has a 10 baht discount)
       const discount = (i % 3 === 0) ? 10 : 0;
-
+      
       const discountedOptions = typeOptions.map(t => ({
           ...t,
           price: Math.max(0, t.price - discount)
@@ -74,8 +74,8 @@ const MOCK_DATA = {
         id: idx,
         name: i % 2 === 0 ? `เมนูพิเศษ ${idx}` : `รายการอร่อย ${idx}`,
         category: category,
-        price: discountedOptions[0].price,
-        originalPrice: typeOptions[0].price,
+        price: discountedOptions[0].price, 
+        originalPrice: typeOptions[0].price, 
         discount: discount,
         isRecommended: i % 5 === 0,
         image: MENU_IMAGE,
@@ -128,12 +128,12 @@ const GlobalStyles = () => (
        font-style: normal;
     }
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Anuphan:wght@400;700&display=swap');
-
-    body {
-        font-family: 'Foxgraphie', 'Plus Jakarta Sans', 'Anuphan', sans-serif;
-        -webkit-tap-highlight-color: transparent;
+    
+    body { 
+        font-family: 'Foxgraphie', 'Plus Jakarta Sans', 'Anuphan', sans-serif; 
+        -webkit-tap-highlight-color: transparent; 
     }
-
+    
     .no-scrollbar::-webkit-scrollbar { display: none; }
     ::-webkit-scrollbar { width: 0; background: transparent; }
     input, textarea { font-size: 16px !important; }
@@ -144,7 +144,7 @@ const GlobalStyles = () => (
 
 // Global Toast Component
 const ToastNotification = ({ show, message, type, extraClass = "" }) => (
-    <div className={`fixed left-6 right-6 backdrop-blur-xl p-4 rounded-2xl shadow-2xl border flex items-center gap-3 z-[1000] transition-all duration-300 transform ${show ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0 pointer-events-none'} ${extraClass}`}
+    <div className={`fixed left-6 right-6 backdrop-blur-xl p-4 rounded-2xl shadow-2xl border flex items-center gap-3 z-[1000] transition-all duration-300 transform ${show ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0 pointer-events-none'} ${extraClass}`} 
          style={{ backgroundColor: '#ffffff', borderColor: '#f3f4f6' }}>
       <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white flex-shrink-0`} style={{ backgroundColor: type === 'delete' || type === 'error' ? '#ef4444' : '#22c55e' }}>
         {type === 'delete' || type === 'error' ? <Trash2 size={20} strokeWidth={2.5} /> : <Check size={20} strokeWidth={3} />}
@@ -183,14 +183,14 @@ const BouncingDotsLoader = ({ style }) => (
 
 const PersistentHeader = ({ title, scrollProgress, onProfileClick }) => (
   <div className="fixed top-0 left-0 right-0 z-[100] pointer-events-none">
-    <div className="absolute top-0 left-0 right-0 h-[60px]"
-      style={{
-        background: `linear-gradient(to bottom,
-          #ffffff 0%,
-          ${alpha('#ffffff', '0.98')} 25%,
-          ${alpha('#ffffff', '0.85')} 50%,
-          ${alpha('#ffffff', '0.4')} 80%,
-          ${alpha('#ffffff', '0')} 100%)`
+    <div className="absolute top-0 left-0 right-0 h-[60px]" 
+      style={{ 
+        background: `linear-gradient(to bottom, 
+          #ffffff 0%, 
+          ${alpha('#ffffff', '0.98')} 25%, 
+          ${alpha('#ffffff', '0.85')} 50%, 
+          ${alpha('#ffffff', '0.4')} 80%, 
+          ${alpha('#ffffff', '0')} 100%)` 
       }}
     />
     <div className="relative pt-12 pb-2 px-[18px] flex justify-between items-center"
@@ -207,26 +207,25 @@ const StickySearchBar = ({ value, onChange, onFocus, onBlur, placeholder, inputR
   <div className="sticky top-0 z-[120] -mx-[18px] px-[18px] py-2 bg-transparent pointer-events-none">
      <div className="relative mt-2 bg-white/90 backdrop-blur-xl rounded-2xl p-4 flex items-center gap-3 border border-gray-100 shadow-lg shadow-gray-900/5 pointer-events-auto">
         <Search size={18} className="text-gray-400 flex-shrink-0" />
-        <input
+        <input 
           ref={inputRef}
           id="main-search-input"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onFocus={onFocus}
           onBlur={onBlur}
-          placeholder={placeholder}
-          className="w-full bg-transparent outline-none text-base font-bold text-gray-900 placeholder-gray-400"
+          placeholder={placeholder} 
+          className="w-full bg-transparent outline-none text-base font-bold text-gray-900 placeholder-gray-400" 
         />
         {value && (
-            <button
+            <button 
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
                     onChange('');
-                    // บังคับ Focus กลับทันทีเพื่อป้องกันแป้นพิมพ์หุบ
                     setTimeout(() => {
                         if (inputRef && inputRef.current) inputRef.current.focus();
                     }, 0);
-                }}
+                }} 
                 className="p-1"
             >
                 <X size={18} className="text-gray-400" />
@@ -239,30 +238,30 @@ const StickySearchBar = ({ value, onChange, onFocus, onBlur, placeholder, inputR
 const MenuCard = ({ menu, onSelect }) => {
   const displayPrice = menu.typeOptions && menu.typeOptions.length > 0 ? menu.typeOptions[0].price : 0;
   const hasDiscount = menu.discount > 0;
-
+  
   return (
     <div className="flex flex-col group cursor-pointer">
       <div className="relative aspect-square mb-3">
         <div className="w-full h-full rounded-[24px] overflow-hidden shadow-sm bg-gray-100">
-          <img
-            src={menu.image}
-            alt={menu.name}
-            className="w-full h-full object-cover group-active:scale-110 transition-transform duration-700"
+          <img 
+            src={menu.image} 
+            alt={menu.name} 
+            className="w-full h-full object-cover group-active:scale-110 transition-transform duration-700" 
             onClick={() => onSelect(menu)}
           />
         </div>
         {menu.isRecommended && (
-          <div
+          <div 
             className="absolute top-2.5 left-2.5 backdrop-blur-md text-white text-[10px] px-2.5 py-1 rounded-full font-bold shadow-sm"
             style={{ backgroundColor: alpha('#00704A', '0.9') }}
           >
             ยอดสั่งเยอะที่สุด
           </div>
         )}
-        <button
+        <button 
           onClick={(e) => {
             e.stopPropagation();
-            onSelect(menu);
+            onSelect(menu); 
           }}
           className="absolute -bottom-1 -right-1 w-10 h-10 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-all z-10 text-white"
           style={{ backgroundColor: '#00704A' }}
@@ -294,7 +293,7 @@ const NewsCard = ({ item }) => (
   <div className="bg-white rounded-[32px] overflow-hidden border border-gray-100 shadow-sm mb-6">
     <div className="relative h-44">
       <img src={item.image} className="w-full h-full object-cover" alt={item.title} />
-      <div
+      <div 
         className="absolute top-4 left-4 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-white"
         style={{ backgroundColor: item.type === 'Promotion' ? '#f97316' : '#00704A' }}
       >
@@ -369,9 +368,9 @@ const MenuDetailModal = ({ menu, onClose, onConfirm, onDelete, isEditMode = fals
                 <label className="text-xs font-black text-gray-400 uppercase tracking-widest">เลือกรูปแบบ</label>
                 <div className="flex flex-wrap gap-3">
                   {menu.typeOptions.map((type, idx) => (
-                    <button key={idx} onClick={() => setSelectedType(type)}
+                    <button key={idx} onClick={() => setSelectedType(type)} 
                         className="flex-1 min-w-[80px] py-3 px-2 rounded-xl text-sm font-bold border-2 transition-all"
-                        style={{
+                        style={{ 
                             backgroundColor: selectedType.label === type.label ? alpha('#00704A', '0.1') : '#ffffff',
                             borderColor: selectedType.label === type.label ? '#00704A' : '#f3f4f6',
                             color: selectedType.label === type.label ? '#00704A' : '#9ca3af'
@@ -390,7 +389,7 @@ const MenuDetailModal = ({ menu, onClose, onConfirm, onDelete, isEditMode = fals
                   {menu.addOns.map((addon, idx) => {
                     const isSelected = selectedAddOns.some(item => item.label === addon.label);
                     return (
-                      <button key={idx} onClick={() => toggleAddOn(addon)}
+                      <button key={idx} onClick={() => toggleAddOn(addon)} 
                           className="w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all"
                           style={{
                               borderColor: isSelected ? '#00704A' : '#f9fafb',
@@ -413,10 +412,10 @@ const MenuDetailModal = ({ menu, onClose, onConfirm, onDelete, isEditMode = fals
             )}
             <div className="space-y-3">
                 <label className="text-xs font-black text-gray-400 uppercase tracking-widest">หมายเหตุถึงร้าน</label>
-                <textarea
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  placeholder="เช่น หวานน้อย, ไม่ใส่ผัก..."
+                <textarea 
+                  value={note} 
+                  onChange={(e) => setNote(e.target.value)} 
+                  placeholder="เช่น หวานน้อย, ไม่ใส่ผัก..." 
                   className="w-full bg-gray-50 border-none rounded-2xl p-4 text-base font-medium text-gray-700 focus:ring-2 outline-none h-24 resize-none"
                   style={{ '--tw-ring-color': alpha('#00704A', '0.2') }}
                 />
@@ -427,8 +426,8 @@ const MenuDetailModal = ({ menu, onClose, onConfirm, onDelete, isEditMode = fals
           {isEditMode ? (
               <div className="flex gap-3">
                   <button onClick={onDelete} className="p-4 bg-red-50 text-red-500 rounded-2xl active:scale-95 transition-all shadow-sm"><Trash2 size={24} /></button>
-                  <button
-                    onClick={() => { onConfirm({ ...menu, price: finalPrice, selectedType: selectedType.label, selectedAddOns: selectedAddOns.map(a => a.label).join(', '), note }); onClose(); }}
+                  <button 
+                    onClick={() => { onConfirm({ ...menu, price: finalPrice, selectedType: selectedType.label, selectedAddOns: selectedAddOns.map(a => a.label).join(', '), note }); onClose(); }} 
                     className="flex-1 text-white py-4 rounded-2xl font-black text-lg shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2"
                     style={{ backgroundColor: '#00704A', boxShadow: `0 10px 15px -3px ${alpha('#00704A', '0.3')}` }}
                   >
@@ -436,8 +435,8 @@ const MenuDetailModal = ({ menu, onClose, onConfirm, onDelete, isEditMode = fals
                   </button>
               </div>
           ) : (
-            <button
-                onClick={() => { onConfirm({ ...menu, price: finalPrice, selectedType: selectedType.label, selectedAddOns: selectedAddOns.map(a => a.label).join(', '), note }); onClose(); }}
+            <button 
+                onClick={() => { onConfirm({ ...menu, price: finalPrice, selectedType: selectedType.label, selectedAddOns: selectedAddOns.map(a => a.label).join(', '), note }); onClose(); }} 
                 className="w-full text-white py-4 rounded-2xl font-black text-lg shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2"
                 style={{ backgroundColor: '#00704A', boxShadow: `0 10px 15px -3px ${alpha('#00704A', '0.3')}` }}
             >
@@ -489,30 +488,30 @@ const SplashView = ({ onFinish }) => {
   const startX = useRef(0);
   const isDragging = useRef(false);
   const slides = [
-      {title: "ดื่มด่ำกับรสชาติแท้จริง", desc: "สัมผัสความหอมกรุ่นของเมล็ดกาแฟสายพันธุ์ดีที่เราคัดสรรมาเพื่อคุณโดยเฉพาะ", image: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800"},
-      {title: "สั่งง่าย จ่ายสะดวก", desc: "ไม่ต้องรอนาน สั่งเครื่องดื่มแก้วโปรดล่วงหน้าและชำระเงินได้ทันทีผ่านแอป", image: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?auto=format&fit=crop&q=80&w=800"},
+      {title: "ดื่มด่ำกับรสชาติแท้จริง", desc: "สัมผัสความหอมกรุ่นของเมล็ดกาแฟสายพันธุ์ดีที่เราคัดสรรมาเพื่อคุณโดยเฉพาะ", image: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800"}, 
+      {title: "สั่งง่าย จ่ายสะดวก", desc: "ไม่ต้องรอนาน สั่งเครื่องดื่มแก้วโปรดล่วงหน้าและชำระเงินได้ทันทีผ่านแอป", image: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?auto=format&fit=crop&q=80&w=800"}, 
       {title: "สิทธิพิเศษสำหรับคุณ", desc: "สะสมแต้มแลกรับส่วนลดและของรางวัลมากมายในทุกๆ การสั่งซื้อ", image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=800"}
   ];
 
-  useEffect(() => {
-    if (containerRef.current) {
-        containerRef.current.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
-        containerRef.current.style.transform = `translateX(-${step * 100}vw)`;
-    }
+  useEffect(() => { 
+    if (containerRef.current) { 
+        containerRef.current.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)'; 
+        containerRef.current.style.transform = `translateX(-${step * 100}vw)`; 
+    } 
   }, [step]);
 
-  const handleTouchStart = (e) => {
-    isDragging.current = true;
-    startX.current = e.touches[0].clientX;
-    if (containerRef.current) containerRef.current.style.transition = 'none';
+  const handleTouchStart = (e) => { 
+    isDragging.current = true; 
+    startX.current = e.touches[0].clientX; 
+    if (containerRef.current) containerRef.current.style.transition = 'none'; 
   };
 
-  const handleTouchMove = (e) => {
-    if (!isDragging.current || !containerRef.current) return;
-    const diff = e.touches[0].clientX - startX.current;
-    let effectiveDrag = diff;
-    if ((step === 0 && diff > 0) || (step === slides.length - 1 && diff < 0)) effectiveDrag = diff * 0.3;
-    containerRef.current.style.transform = `translateX(${-(step * window.innerWidth) + effectiveDrag}px)`;
+  const handleTouchMove = (e) => { 
+    if (!isDragging.current || !containerRef.current) return; 
+    const diff = e.touches[0].clientX - startX.current; 
+    let effectiveDrag = diff; 
+    if ((step === 0 && diff > 0) || (step === slides.length - 1 && diff < 0)) effectiveDrag = diff * 0.3; 
+    containerRef.current.style.transform = `translateX(${-(step * window.innerWidth) + effectiveDrag}px)`; 
   };
 
   const handleTouchEnd = (e) => {
@@ -559,14 +558,14 @@ const LoginView = ({ onLoginSuccess }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const handleLogin = (e) => {
-      e.preventDefault();
-      setIsLoading(true);
-      setError('');
-      setTimeout(() => {
-          if (username === 'user' && password === 'user') onLoginSuccess();
-          else { setError('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'); setIsLoading(false); }
-      }, 1000);
+  const handleLogin = (e) => { 
+      e.preventDefault(); 
+      setIsLoading(true); 
+      setError(''); 
+      setTimeout(() => { 
+          if (username === 'user' && password === 'user') onLoginSuccess(); 
+          else { setError('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'); setIsLoading(false); } 
+      }, 1000); 
   };
   return (
     <div className="fixed inset-0 bg-[#FDFDFD] z-[400] flex flex-col p-8 justify-center">
@@ -620,14 +619,15 @@ const MainApp = ({ onLogout }) => {
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
   const [activeGlobalCategory, setActiveGlobalCategory] = useState('ทั้งหมด');
   const [isSearching, setIsSearching] = useState(false);
-
+  
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const touchStartRef = useRef(0);
-
+  
   const categoryContainerRef = useRef(null);
   const searchInputRef = useRef(null);
   const isAutoScrolling = useRef(false);
+  const isJustFocused = useRef(false); // Ref ใหม่เพื่อป้องกัน Layout Shift
   const [isPulling, setIsPulling] = useState(false);
 
   useEffect(() => {
@@ -659,79 +659,89 @@ const MainApp = ({ onLogout }) => {
   useEffect(() => {
     const handleScroll = () => {
         setScrollProgress(Math.min(1, Math.max(0, window.scrollY / 55)));
-        if (!isAutoScrolling.current && document.activeElement === searchInputRef.current) {
+        
+        // Hide keyboard ONLY if NOT auto scrolling AND NOT just focused (for layout shifts)
+        if (!isAutoScrolling.current && !isJustFocused.current && document.activeElement === searchInputRef.current) {
             searchInputRef.current.blur();
         }
     };
-
+    
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Use touchmove to distinguish user scroll from system scroll
   const handleTouchMoveOnBody = (e) => {
-    if (!isAutoScrolling.current && document.activeElement === searchInputRef.current) {
+    if (!isAutoScrolling.current && !isJustFocused.current && document.activeElement === searchInputRef.current) {
         searchInputRef.current.blur();
     }
-
+    
     // Pull to Refresh
     const touchY = e.touches[0].clientY;
     const diff = touchY - touchStartRef.current;
     if (window.scrollY === 0 && diff > 0 && !isRefreshing) {
        // Resistance
-       setPullDistance(Math.min(diff * 0.4, 120));
+       setPullDistance(Math.min(diff * 0.4, 120)); 
     }
   };
 
   // --- Logic: Auto Scroll to Categories on Search ---
   useEffect(() => {
     let scrollTimeout;
-
-    // Always lock first on dependency change
-    isAutoScrolling.current = true;
+    let layoutShiftTimeout;
 
     if (currentPage === 'menu' && categoryContainerRef.current) {
-        // ... existing complex logic for menu scroll ...
-        // We can ignore the specific implementation here, it's fine.
-        // It has its own timeouts.
+        isAutoScrolling.current = true;
+
+        layoutShiftTimeout = setTimeout(() => {
+        }, 100);
+
         scrollTimeout = setTimeout(() => {
             const element = categoryContainerRef.current;
-            const headerOffset = 85;
+            const headerOffset = 85; 
             const elementPosition = element.getBoundingClientRect().top + window.scrollY;
             const offsetPosition = elementPosition - headerOffset;
 
             if (window.scrollY > offsetPosition) {
-                 isAutoScrolling.current = true;
+                 isAutoScrolling.current = true; 
                  window.scrollTo({
                     top: offsetPosition,
                     behavior: 'smooth'
                 });
-
+                
                 setTimeout(() => {
                     isAutoScrolling.current = false;
                 }, 1000);
             } else {
                 isAutoScrolling.current = false;
             }
-        }, 500);
+        }, 500); 
     } else {
-        // For Search/Order pages: just wait a bit for layout shifts to settle
-        scrollTimeout = setTimeout(() => {
-            isAutoScrolling.current = false;
-        }, 300);
+        isAutoScrolling.current = false;
     }
-
-    return () => clearTimeout(scrollTimeout);
-  }, [menuSearchQuery, currentPage, filteredMenuResults.length, globalSearchQuery, cart.length]); // Added cart.length for order page safety
+    
+    return () => {
+        clearTimeout(scrollTimeout);
+        clearTimeout(layoutShiftTimeout);
+    };
+  }, [menuSearchQuery, currentPage, filteredMenuResults.length, globalSearchQuery, cart.length]);
 
   const handleMenuSearchChange = (text) => {
-      isAutoScrolling.current = true;
+      isAutoScrolling.current = true; 
+      isJustFocused.current = true; // Lock for layout shift
       setMenuSearchQuery(text);
+      
+      // Unlock after potential layout shift
+      setTimeout(() => { isJustFocused.current = false; }, 800);
   };
 
   const handleGlobalSearchChange = (text) => {
       isAutoScrolling.current = true;
+      isJustFocused.current = true; // Lock for layout shift
       setGlobalSearchQuery(text);
+      
+      // Unlock after potential layout shift
+      setTimeout(() => { isJustFocused.current = false; }, 800);
   };
 
   // --- Pull to Refresh Logic ---
@@ -746,8 +756,8 @@ const MainApp = ({ onLogout }) => {
     setIsPulling(false);
     if (pullDistance > 60) {
        setIsRefreshing(true);
-       setPullDistance(60);
-
+       setPullDistance(60); 
+       
        setTimeout(() => {
           setIsRefreshing(false);
           setPullDistance(0);
@@ -757,12 +767,11 @@ const MainApp = ({ onLogout }) => {
     }
   };
 
-  const total = cart.reduce((sum, item) => sum + item.price, 0);
+  const total = cart.reduce((sum, item) => sum + item.price, 0); 
   const isGlobalSearchEmpty = globalSearchResults.promos.length === 0 && globalSearchResults.news.length === 0 && globalSearchResults.menus.length === 0;
-
-  // ตรวจสอบสถานะเพื่อล็อกการเลื่อนหน้าจอ
-  const isScrollLocked = (currentPage === 'menu' && filteredMenuResults.length === 0) ||
-                         (currentPage === 'search' && !globalSearchQuery) ||
+  
+  const isScrollLocked = (currentPage === 'menu' && filteredMenuResults.length === 0) || 
+                         (currentPage === 'search' && !globalSearchQuery) || 
                          (currentPage === 'search' && isGlobalSearchEmpty) ||
                          (currentPage === 'order' && cart.length === 0);
 
@@ -803,8 +812,8 @@ const MainApp = ({ onLogout }) => {
   const mainPaddingTop = 112 + pullDistance; // 112px is default pt-28
 
   return (
-    <div
-        className={`min-h-screen bg-[#FDFDFD] text-[#111827] select-none ${isScrollLocked ? 'h-screen overflow-hidden' : 'pb-32'}`}
+    <div 
+        className={`min-h-screen bg-[#FDFDFD] text-[#111827] select-none ${isScrollLocked ? 'h-screen overflow-hidden' : 'pb-32'}`} 
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMoveOnBody}
         onTouchEnd={handleTouchEnd}
@@ -812,9 +821,9 @@ const MainApp = ({ onLogout }) => {
       <PersistentHeader title={currentPage === 'home' ? `สวัสดี, คุณสมชาย` : currentPage === 'menu' ? 'เมนูของร้าน' : currentPage === 'search' ? 'ค้นหา' : 'รายการสั่ง'} scrollProgress={scrollProgress} onProfileClick={() => setShowProfile(true)} />
 
       {/* Pull to Refresh Indicator */}
-      <div
+      <div 
           className={`fixed top-20 left-0 right-0 z-[80] flex justify-center pointer-events-none transition-transform duration-200 ease-out ${isPulling ? '!transition-none' : ''}`}
-          style={{
+          style={{ 
               transform: `translateY(${pullDistance > 0 ? pullDistance - 20 : -50}px)`,
               opacity: pullDistance > 0 ? Math.min(pullDistance / 40, 1) : 0
           }}
@@ -828,11 +837,11 @@ const MainApp = ({ onLogout }) => {
           )}
       </div>
 
-      <main
+      <main 
         className={`px-[18px] transition-all duration-200 ease-out ${isPulling ? '!transition-none' : ''}`}
         style={{ paddingTop: `${mainPaddingTop}px` }}
       >
-
+        
         {currentPage === 'home' && (
           <div className="space-y-12">
             <section>
@@ -860,22 +869,26 @@ const MainApp = ({ onLogout }) => {
 
         {currentPage === 'menu' && (
           <div className="flex flex-col gap-1">
-            <StickySearchBar
-                value={menuSearchQuery}
+            <StickySearchBar 
+                value={menuSearchQuery} 
                 onChange={handleMenuSearchChange}
-                onFocus={() => setIsSearching(true)}
-                onBlur={() => setTimeout(() => setIsSearching(false), 100)}
-                placeholder="ค้นหาเมนู หรือหมวดหมู่..."
+                onFocus={() => {
+                  setIsSearching(true);
+                  isJustFocused.current = true;
+                  setTimeout(() => { isJustFocused.current = false; }, 800);
+                }} 
+                onBlur={() => setTimeout(() => setIsSearching(false), 100)} 
+                placeholder="ค้นหาเมนู หรือหมวดหมู่..." 
                 inputRef={searchInputRef}
             />
             <div ref={categoryContainerRef} className="flex gap-2 overflow-x-auto no-scrollbar -mx-[18px] px-[18px] py-1 mt-1">
                 {['ทั้งหมด', ...MOCK_DATA.menuCategories].map(cat => (
-                    <button key={cat} onClick={() => setActiveMenuCategory(cat)} className={`px-6 py-3 rounded-full text-xs font-black whitespace-nowrap transition-all border`}
-                        style={{
-                            backgroundColor: activeMenuCategory === cat ? '#00704A' : '#ffffff',
-                            borderColor: activeMenuCategory === cat ? '#00704A' : '#f3f4f6',
-                            color: activeMenuCategory === cat ? '#ffffff' : '#9ca3af',
-                            transform: activeMenuCategory === cat ? 'scale(1.05)' : 'scale(1)'
+                    <button key={cat} onClick={() => setActiveMenuCategory(cat)} className={`px-6 py-3 rounded-full text-xs font-black whitespace-nowrap transition-all border`} 
+                        style={{ 
+                            backgroundColor: activeMenuCategory === cat ? '#00704A' : '#ffffff', 
+                            borderColor: activeMenuCategory === cat ? '#00704A' : '#f3f4f6', 
+                            color: activeMenuCategory === cat ? '#ffffff' : '#9ca3af', 
+                            transform: activeMenuCategory === cat ? 'scale(1.05)' : 'scale(1)' 
                         }}>
                         {cat}
                     </button>
@@ -893,23 +906,27 @@ const MainApp = ({ onLogout }) => {
 
         {currentPage === 'search' && (
           <div className="flex flex-col gap-1 h-full">
-            <StickySearchBar
-                value={globalSearchQuery}
+            <StickySearchBar 
+                value={globalSearchQuery} 
                 onChange={handleGlobalSearchChange}
-                onFocus={() => setIsSearching(true)}
-                onBlur={() => setTimeout(() => setIsSearching(false), 100)}
-                placeholder="ค้นหาโปรโมชั่น ข่าวสาร หรือเมนู..."
+                onFocus={() => {
+                  setIsSearching(true);
+                  isJustFocused.current = true;
+                  setTimeout(() => { isJustFocused.current = false; }, 800);
+                }}
+                onBlur={() => setTimeout(() => setIsSearching(false), 100)} 
+                placeholder="ค้นหาโปรโมชั่น ข่าวสาร หรือเมนู..." 
                 inputRef={searchInputRef}
             />
             {!globalSearchQuery ? <EmptyState icon={SearchIcon} title="ค้นหาสิ่งที่คุณต้องการเลย" description="พิมพ์คำค้นหาเพื่อเริ่มค้นหาโปรโมชั่น ข่าวสาร และเมนูอร่อยๆ" /> : (
               <div>
                 <div ref={categoryContainerRef} className="flex gap-2 overflow-x-auto no-scrollbar -mx-[18px] px-[18px] py-1 mt-1">
                     {['ทั้งหมด', 'โปรโมชั่น', 'ข่าวสาร', 'เมนู'].map(cat => (
-                        <button key={cat} onClick={() => setActiveGlobalCategory(cat)} className={`px-6 py-3 rounded-full text-xs font-black whitespace-nowrap transition-all border`}
-                            style={{
-                                backgroundColor: activeGlobalCategory === cat ? '#00704A' : '#ffffff',
-                                borderColor: activeGlobalCategory === cat ? '#00704A' : '#f3f4f6',
-                                color: activeGlobalCategory === cat ? '#ffffff' : '#9ca3af',
+                        <button key={cat} onClick={() => setActiveGlobalCategory(cat)} className={`px-6 py-3 rounded-full text-xs font-black whitespace-nowrap transition-all border`} 
+                            style={{ 
+                                backgroundColor: activeGlobalCategory === cat ? '#00704A' : '#ffffff', 
+                                borderColor: activeGlobalCategory === cat ? '#00704A' : '#f3f4f6', 
+                                color: activeGlobalCategory === cat ? '#ffffff' : '#9ca3af', 
                             }}>
                             {cat}
                         </button>
@@ -952,7 +969,7 @@ const MainApp = ({ onLogout }) => {
                      <button className="text-white px-10 py-4 rounded-2xl font-black active:scale-95 transition-transform" style={{ backgroundColor: '#00704A', boxShadow: `0 10px 15px -3px ${alpha('#00704A', '0.3')}` }}>สั่งรายการ</button>
                  </div>
               </div>
-
+              
               {cart.map((item, idx) => (
                 <div key={idx} onClick={() => setEditingItem(item)} className="p-2 pr-4 rounded-[32px] flex items-center gap-4 border shadow-sm active:scale-[0.98] transition-all bg-white border-gray-100">
                     <img src={item.image} className="w-20 h-20 rounded-[24px] object-cover flex-shrink-0" alt={item.name} />
@@ -989,7 +1006,7 @@ const MainApp = ({ onLogout }) => {
 
       {/* Navigation Bar */}
       <div className={`fixed bottom-0 left-0 right-0 z-[150] flex items-center justify-between gap-3 px-[18px] pb-[18px] pointer-events-none transition-all duration-300 transform ${isSearching ? 'translate-y-[150%] opacity-0' : 'translate-y-0 opacity-100'}`}>
-        <div className="flex-1 backdrop-blur-xl rounded-full flex items-center justify-around p-[2px] border shadow-2xl pointer-events-auto h-[64px]"
+        <div className="flex-1 backdrop-blur-xl rounded-full flex items-center justify-around p-[2px] border shadow-2xl pointer-events-auto h-[64px]" 
              style={{ backgroundColor: alpha('#ffffff', '0.9'), borderColor: alpha('#f3f4f6', '0.5') }}>
           {[{ id: 'home', icon: Coffee, label: 'หน้าร้าน' }, { id: 'menu', icon: LayoutGrid, label: 'เมนู' }, { id: 'order', icon: ShoppingBag, label: 'ออเดอร์' }].map((item) => (
             <button key={item.id} onClick={() => { setCurrentPage(item.id); window.scrollTo({ top: 0, behavior: 'instant' }); }} className={`relative flex-1 flex flex-col items-center justify-center h-full rounded-full transition-all duration-300`} style={{ color: currentPage === item.id ? '#00704A' : '#9ca3af' }}>
@@ -1000,8 +1017,8 @@ const MainApp = ({ onLogout }) => {
             </button>
           ))}
         </div>
-        <button onClick={() => { setCurrentPage('search'); window.scrollTo({ top: 0, behavior: 'instant' }); }}
-                className={`w-[64px] h-[64px] flex-shrink-0 rounded-full flex items-center justify-center backdrop-blur-xl border shadow-2xl pointer-events-auto transition-all duration-300`}
+        <button onClick={() => { setCurrentPage('search'); window.scrollTo({ top: 0, behavior: 'instant' }); }} 
+                className={`w-[64px] h-[64px] flex-shrink-0 rounded-full flex items-center justify-center backdrop-blur-xl border shadow-2xl pointer-events-auto transition-all duration-300`} 
                 style={{ backgroundColor: currentPage === 'search' ? '#00704A' : alpha('#ffffff', '0.9'), borderColor: alpha('#ffffff', '0.5'), color: currentPage === 'search' ? '#ffffff' : '#9ca3af' }}>
           <Search size={26} strokeWidth={3} />
         </button>
@@ -1009,7 +1026,7 @@ const MainApp = ({ onLogout }) => {
 
       {/* Modals */}
       {selectedMenu && <MenuDetailModal menu={selectedMenu} onClose={() => setSelectedMenu(null)} onConfirm={(item) => handleAddToCart(item)} />}
-
+      
       {editingItem && <MenuDetailModal menu={editingItem} isEditMode={true} onClose={() => setEditingItem(null)} onConfirm={(item) => { handleUpdateCart(item); setEditingItem(null); }} onDelete={() => setDeleteConfirmItem(editingItem)} />}
 
       {deleteConfirmItem && <DeleteConfirmModal onConfirm={confirmDelete} onCancel={() => setDeleteConfirmItem(null)} />}
@@ -1070,18 +1087,18 @@ const App = () => {
       <SplashView onFinish={() => setAppState('login')} />
     </>
   );
-
+  
   return (
     <>
       <GlobalStyles />
       {appState === 'login' && <LoginView onLoginSuccess={() => setAppState('main')} />}
       {appState === 'main' && <MainApp onLogout={handleLogout} />}
-
-      <ToastNotification
-        show={globalToast.show}
-        message={globalToast.message}
-        type={globalToast.type}
-        extraClass="bottom-6"
+      
+      <ToastNotification 
+        show={globalToast.show} 
+        message={globalToast.message} 
+        type={globalToast.type} 
+        extraClass="bottom-6" 
       />
     </>
   );
