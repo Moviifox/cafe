@@ -127,13 +127,27 @@ const GlobalStyles = () => (
        font-weight: 800;
        font-style: normal;
     }
+    @font-face {
+       font-family: 'Foxgraphie';
+       src: url('https://raw.githubusercontent.com/Moviifox/trailer/main/foxgraphie_semibold.otf') format('opentype');
+       font-weight: 900;
+       font-style: normal;
+    }
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Anuphan:wght@400;700&display=swap');
     
     body { 
         font-family: 'Foxgraphie', 'Plus Jakarta Sans', 'Anuphan', sans-serif; 
-        -webkit-tap-highlight-color: transparent; 
+        -webkit-tap-highlight-color: transparent;
+        /* ป้องกันการเด้งของ Safari เพื่อให้ JS ควบคุมการดึงลงได้ */
+        overscroll-behavior-y: none; 
     }
     
+    /* Utility class for Extra Bold simulation */
+    .font-extra-thick {
+        font-weight: 900;
+        text-shadow: 0.5px 0 0 currentColor;
+    }
+
     .no-scrollbar::-webkit-scrollbar { display: none; }
     ::-webkit-scrollbar { width: 0; background: transparent; }
     input, textarea { font-size: 16px !important; }
@@ -193,9 +207,9 @@ const PersistentHeader = ({ title, scrollProgress, onProfileClick }) => (
           ${alpha('#ffffff', '0')} 100%)` 
       }}
     />
-    <div className="relative pt-12 pb-2 px-[18px] flex justify-between items-center"
+    <div className="relative pt-4 pb-2 px-[18px] flex justify-between items-center"
       style={{ opacity: 1 - scrollProgress, transform: `translateY(${-(scrollProgress * 15)}px)`, transition: 'opacity 0.2s ease-out, transform 0.2s ease-out' }}>
-      <h1 className="text-xl font-black tracking-tight text-gray-900">{title}</h1>
+      <h1 className="text-3xl font-black tracking-tight text-gray-900">{title}</h1>
       <button onClick={onProfileClick} className="w-10 h-10 rounded-full border border-gray-100 overflow-hidden shadow-sm bg-white pointer-events-auto active:scale-90 transition-transform">
         <img src={MOCK_DATA.user.photo} alt="user" className="w-full h-full object-cover" />
       </button>
@@ -276,12 +290,12 @@ const MenuCard = ({ menu, onSelect }) => {
         <div className="flex items-center gap-2 flex-wrap -mt-1">
           {hasDiscount ? (
             <>
-                <span className="text-[20px] font-black text-red-500">฿{displayPrice}</span>
+                <span className="text-[20px] font-extra-thick text-red-500">฿{displayPrice}</span>
                 <span className="text-[12px] text-gray-400 line-through">฿{displayPrice + menu.discount}</span>
                 <Tag size={12} className="text-red-500" />
             </>
           ) : (
-            <span className="text-[20px] font-black" style={{ color: '#00704A' }}>฿{displayPrice}</span>
+            <span className="text-[20px] font-extra-thick" style={{ color: '#00704A' }}>฿{displayPrice}</span>
           )}
         </div>
       </div>
@@ -360,7 +374,7 @@ const MenuDetailModal = ({ menu, onClose, onConfirm, onDelete, isEditMode = fals
               <h2 className="text-2xl font-black text-gray-900 leading-tight">{menu.name}</h2>
               <span className="inline-block mt-2 px-3 py-1 bg-gray-100 text-gray-500 rounded-lg text-[10px] font-bold uppercase tracking-wider">{menu.category}</span>
             </div>
-            <span className="text-3xl font-black" style={{ color: '#00704A' }}>฿{finalPrice}</span>
+            <span className="text-3xl font-extra-thick" style={{ color: '#00704A' }}>฿{finalPrice}</span>
           </div>
           <div className="space-y-8 mt-6">
             {shouldShowTypeSelection && (
@@ -627,7 +641,7 @@ const MainApp = ({ onLogout }) => {
   const categoryContainerRef = useRef(null);
   const searchInputRef = useRef(null);
   const isAutoScrolling = useRef(false);
-  const isJustFocused = useRef(false); // Ref ใหม่เพื่อป้องกัน Layout Shift
+  const isJustFocused = useRef(false); 
   const [isPulling, setIsPulling] = useState(false);
 
   useEffect(() => {
@@ -659,8 +673,6 @@ const MainApp = ({ onLogout }) => {
   useEffect(() => {
     const handleScroll = () => {
         setScrollProgress(Math.min(1, Math.max(0, window.scrollY / 55)));
-        
-        // Hide keyboard ONLY if NOT auto scrolling AND NOT just focused (for layout shifts)
         if (!isAutoScrolling.current && !isJustFocused.current && document.activeElement === searchInputRef.current) {
             searchInputRef.current.blur();
         }
@@ -691,57 +703,70 @@ const MainApp = ({ onLogout }) => {
     let layoutShiftTimeout;
 
     if (currentPage === 'menu' && categoryContainerRef.current) {
+        // 1. Lock scroll-hide IMMEDIATELY when results/query update
+        // This prevents "Layout Shift" scrolls from hiding the keyboard
         isAutoScrolling.current = true;
 
+        // Release lock shortly if no debounce scroll happens (covers minor layout shifts)
         layoutShiftTimeout = setTimeout(() => {
+             // Only release if we haven't started the debounce scroll logic yet
+             // Check if user is still typing? handled by dependency re-run
         }, 100);
 
+        // 2. Debounce for the specific "Jump to Category" action
         scrollTimeout = setTimeout(() => {
             const element = categoryContainerRef.current;
             const headerOffset = 85; 
             const elementPosition = element.getBoundingClientRect().top + window.scrollY;
             const offsetPosition = elementPosition - headerOffset;
 
+            // Check if scroll is actually needed
             if (window.scrollY > offsetPosition) {
+                 // Ensure lock is ON during the scroll
                  isAutoScrolling.current = true; 
                  window.scrollTo({
                     top: offsetPosition,
                     behavior: 'smooth'
                 });
                 
+                // Release lock AFTER scroll animation
                 setTimeout(() => {
                     isAutoScrolling.current = false;
                 }, 1000);
             } else {
+                // No scroll needed, safe to release lock
                 isAutoScrolling.current = false;
             }
-        }, 500); 
+        }, 500); // 0.5s debounce
     } else {
-        isAutoScrolling.current = false;
+        // Not in menu or invalid ref
+        // ADDED LOGIC: When on search page, briefly lock to prevent keyboard hiding on layout shifts
+        isAutoScrolling.current = true; // Lock initially
+        scrollTimeout = setTimeout(() => {
+            isAutoScrolling.current = false;
+        }, 300); // 300ms delay to ignore initial layout shift scroll
     }
     
     return () => {
         clearTimeout(scrollTimeout);
         clearTimeout(layoutShiftTimeout);
     };
-  }, [menuSearchQuery, currentPage, filteredMenuResults.length, globalSearchQuery, cart.length]);
+  }, [menuSearchQuery, currentPage, filteredMenuResults.length, globalSearchQuery, cart.length]); // Added cart.length for order page safety
 
   const handleMenuSearchChange = (text) => {
       isAutoScrolling.current = true; 
-      isJustFocused.current = true; // Lock for layout shift
+      isJustFocused.current = true; 
       setMenuSearchQuery(text);
-      
-      // Unlock after potential layout shift
       setTimeout(() => { isJustFocused.current = false; }, 800);
   };
 
   const handleGlobalSearchChange = (text) => {
       isAutoScrolling.current = true;
-      isJustFocused.current = true; // Lock for layout shift
+      isJustFocused.current = true; 
       setGlobalSearchQuery(text);
       
-      // Unlock after potential layout shift
-      setTimeout(() => { isJustFocused.current = false; }, 800);
+      // *** FIX: Add delay to unlock, preventing hide on empty state layout shift ***
+      setTimeout(() => { isJustFocused.current = false; }, 1000); // Increased to 1000ms
   };
 
   // --- Pull to Refresh Logic ---
@@ -761,6 +786,7 @@ const MainApp = ({ onLogout }) => {
        setTimeout(() => {
           setIsRefreshing(false);
           setPullDistance(0);
+          // Removed toast message here
        }, 1500);
     } else {
        setPullDistance(0);
@@ -770,6 +796,7 @@ const MainApp = ({ onLogout }) => {
   const total = cart.reduce((sum, item) => sum + item.price, 0); 
   const isGlobalSearchEmpty = globalSearchResults.promos.length === 0 && globalSearchResults.news.length === 0 && globalSearchResults.menus.length === 0;
   
+  // ตรวจสอบสถานะเพื่อล็อกการเลื่อนหน้าจอ
   const isScrollLocked = (currentPage === 'menu' && filteredMenuResults.length === 0) || 
                          (currentPage === 'search' && !globalSearchQuery) || 
                          (currentPage === 'search' && isGlobalSearchEmpty) ||
@@ -808,8 +835,9 @@ const MainApp = ({ onLogout }) => {
     onLogout();
   };
 
-  // Calculate dynamic padding top for pull-to-refresh effect
-  const mainPaddingTop = 112 + pullDistance; // 112px is default pt-28
+  // Calculate dynamic padding top for pull-to-refresh effect (Base 80px + pull distance)
+  // Fix: pt-16 is 64px, so base should be 64.
+  const correctedMainPaddingTop = 64 + pullDistance;
 
   return (
     <div 
@@ -839,7 +867,7 @@ const MainApp = ({ onLogout }) => {
 
       <main 
         className={`px-[18px] transition-all duration-200 ease-out ${isPulling ? '!transition-none' : ''}`}
-        style={{ paddingTop: `${mainPaddingTop}px` }}
+        style={{ paddingTop: `${correctedMainPaddingTop}px` }}
       >
         
         {currentPage === 'home' && (
