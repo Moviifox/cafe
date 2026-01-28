@@ -643,6 +643,7 @@ const MainApp = ({ onLogout }) => {
   
   // Ref for previous query to track changes
   const prevMenuSearchQuery = useRef(menuSearchQuery);
+  const prevGlobalSearchQuery = useRef(globalSearchQuery); // Added ref for global search
 
   useEffect(() => {
     const isModalOpen = showProfile || selectedMenu || editingItem || deleteConfirmItem || showLogoutConfirm;
@@ -670,12 +671,12 @@ const MainApp = ({ onLogout }) => {
     return { promos: filteredNews.filter(n => n.type === 'Promotion'), news: filteredNews.filter(n => n.type === 'News'), menus: filteredMenus };
   }, [globalSearchQuery]);
 
-  // Main Scroll Handler
+  // Main Scroll Handler - attached to div
   const handleScroll = (e) => {
     const scrollTop = e.currentTarget.scrollTop;
     setScrollProgress(Math.min(1, Math.max(0, scrollTop / 55)));
     
-    // Hide keyboard logic: Only if user scrolls, not auto-scroll or just focused
+    // Check if we need to hide keyboard (and user is not scrolling automatically)
     if (!isAutoScrolling.current && !isJustFocused.current && document.activeElement === searchInputRef.current) {
         searchInputRef.current.blur();
     }
@@ -705,7 +706,8 @@ const MainApp = ({ onLogout }) => {
 
   // Use touchmove to distinguish user scroll from system scroll
   const handleTouchMoveOnBody = (e) => {
-    if (!isAutoScrolling.current && !isJustFocused.current && document.activeElement === searchInputRef.current) {
+    // FIX: Remove check to ensure keyboard hides on user drag in Search page
+    if (!isAutoScrolling.current && document.activeElement === searchInputRef.current) {
         searchInputRef.current.blur();
     }
     
@@ -714,27 +716,31 @@ const MainApp = ({ onLogout }) => {
     const touchY = e.touches[0].clientY;
     const diff = touchY - touchStartRef.current;
     
+    // Use containerScrollY, NOT window.scrollY
     if (containerScrollY <= 10 && diff > 0 && !isRefreshing) {
        setPullDistance(Math.min(diff * 0.4, 120)); 
     }
   };
 
-  // --- Logic: Auto Scroll to Categories on Search (Filtered by query change) ---
+  // --- Logic: Auto Scroll to Categories on Search ---
   useEffect(() => {
     let scrollTimeout;
     
-    // Check if query actually changed
-    const queryChanged = menuSearchQuery !== prevMenuSearchQuery.current;
+    // Check for changes
+    const menuQueryChanged = menuSearchQuery !== prevMenuSearchQuery.current;
+    const globalQueryChanged = globalSearchQuery !== prevGlobalSearchQuery.current;
     
-    // Always update the ref
+    // Update refs
     prevMenuSearchQuery.current = menuSearchQuery;
+    prevGlobalSearchQuery.current = globalSearchQuery;
 
-    // Only run auto-scroll logic if query changed OR if it's a new mount of Menu page with existing query (optional, usually undesired)
-    // Here we want it only on query change or explicit category clear.
-    // However, when switching tabs, we don't want to scroll. The `prevMenuSearchQuery` ref persists across re-renders in MainApp.
-    // So queryChanged will be false when switching back to Menu if query hasn't changed.
+    // Determine conditions
+    const isMenuPage = currentPage === 'menu';
+    const isSearchPage = currentPage === 'search';
     
-    if (currentPage === 'menu' && categoryContainerRef.current && scrollContainerRef.current && queryChanged) {
+    const shouldScroll = (isMenuPage && menuQueryChanged) || (isSearchPage && globalQueryChanged);
+
+    if (shouldScroll && categoryContainerRef.current && scrollContainerRef.current) {
         isAutoScrolling.current = true;
 
         scrollTimeout = setTimeout(() => {
@@ -749,7 +755,6 @@ const MainApp = ({ onLogout }) => {
             const relativeTop = elementRect.top - containerRect.top;
             const targetScrollTop = currentScrollTop + relativeTop - headerOffset;
 
-            // Scroll if needed
             if (currentScrollTop > targetScrollTop) {
                  isAutoScrolling.current = true; 
                  container.scrollTo({
@@ -764,22 +769,17 @@ const MainApp = ({ onLogout }) => {
                 isAutoScrolling.current = false;
             }
         }, 500); 
-    } 
-    // Handle layout shifts for Global Search page similarly if needed, or simply unlock
-    else {
-         // Ensure auto scrolling is off if not triggered
-         // isAutoScrolling.current = false; 
-         // Note: We don't forcefully set false here immediately to allow other logics (like manual set in handlers) to work.
-         // But for safety after a delay:
-         scrollTimeout = setTimeout(() => {
-             isAutoScrolling.current = false;
-         }, 500);
+    } else {
+        // Safe reset if no scroll triggered
+        scrollTimeout = setTimeout(() => {
+            isAutoScrolling.current = false;
+        }, 500);
     }
     
     return () => {
         clearTimeout(scrollTimeout);
     };
-  }, [menuSearchQuery, currentPage]); // Remove other deps to focus on query change
+  }, [menuSearchQuery, globalSearchQuery, currentPage]); // Added globalSearchQuery
 
   const handleMenuSearchChange = (text) => {
       isAutoScrolling.current = true; 
@@ -789,7 +789,7 @@ const MainApp = ({ onLogout }) => {
   };
 
   const handleGlobalSearchChange = (text) => {
-      isAutoScrolling.current = true;
+      isAutoScrolling.current = true; // Lock scroll hide
       isJustFocused.current = true; 
       setGlobalSearchQuery(text);
       setTimeout(() => { isJustFocused.current = false; }, 1000); 
@@ -822,13 +822,8 @@ const MainApp = ({ onLogout }) => {
   const total = cart.reduce((sum, item) => sum + item.price, 0); 
   const isGlobalSearchEmpty = globalSearchResults.promos.length === 0 && globalSearchResults.news.length === 0 && globalSearchResults.menus.length === 0;
   
-  // isScrollLocked no longer affects overflow of main container, but maybe content inside?
-  // We keep it to conditionally apply classes if needed, or remove if causing issues.
-  // In the previous fix, we used h-[100dvh] and overflow-y-auto, so locking means overflow-hidden.
-  const isScrollLocked = (currentPage === 'menu' && filteredMenuResults.length === 0) || 
-                         (currentPage === 'search' && !globalSearchQuery) || 
-                         (currentPage === 'search' && isGlobalSearchEmpty) ||
-                         (currentPage === 'order' && cart.length === 0);
+  // REMOVED: Nav bar hiding logic based on search state. Nav bar is now always visible.
+  const isScrollLocked = (currentPage === 'order' && cart.length === 0);
 
   const showToastMsg = (msg, type = 'success') => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
@@ -1060,8 +1055,8 @@ const MainApp = ({ onLogout }) => {
         <div><p className="text-sm font-black text-gray-900">{toastType === 'delete' ? 'ลบรายการ' : 'สำเร็จ'}</p><p className="text-xs line-clamp-1 text-gray-400">{toastMessage}</p></div>
       </div>
 
-      {/* Navigation Bar */}
-      <div className={`fixed bottom-0 left-0 right-0 z-[150] flex items-center justify-between gap-3 px-[18px] pb-[18px] pointer-events-none transition-all duration-300 transform ${isSearching ? 'translate-y-[150%] opacity-0' : 'translate-y-0 opacity-100'}`}>
+      {/* Navigation Bar - Fixed at bottom, NO hiding logic */}
+      <div className="fixed bottom-0 left-0 right-0 z-[150] flex items-center justify-between gap-3 px-[18px] pb-[18px] pointer-events-none transition-all duration-300 transform translate-y-0 opacity-100">
         <div className="flex-1 backdrop-blur-xl rounded-full flex items-center justify-around p-[2px] border shadow-2xl pointer-events-auto h-[64px]" 
              style={{ backgroundColor: alpha('#ffffff', '0.9'), borderColor: alpha('#f3f4f6', '0.5') }}>
           {[{ id: 'home', icon: Coffee, label: 'หน้าร้าน' }, { id: 'menu', icon: LayoutGrid, label: 'เมนู' }, { id: 'order', icon: ShoppingBag, label: 'ออเดอร์' }].map((item) => (
