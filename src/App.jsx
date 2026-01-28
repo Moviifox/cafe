@@ -135,10 +135,20 @@ const GlobalStyles = () => (
     }
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Anuphan:wght@400;700&display=swap');
     
-    body { 
+    html, body { 
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden; /* ล็อก Body ไว้ */
         font-family: 'Foxgraphie', 'Plus Jakarta Sans', 'Anuphan', sans-serif; 
         -webkit-tap-highlight-color: transparent; 
         overscroll-behavior-y: none;
+    }
+
+    #root {
+        width: 100%;
+        height: 100%;
     }
     
     .font-extra-thick {
@@ -216,8 +226,8 @@ const PersistentHeader = ({ title, scrollProgress, onProfileClick }) => (
 );
 
 const StickySearchBar = ({ value, onChange, onFocus, onBlur, placeholder, inputRef }) => (
-  <div className="sticky top-0 z-[120] -mx-[18px] px-[18px] py-2 bg-transparent pointer-events-none">
-     <div className="relative mt-2 bg-white/90 backdrop-blur-xl rounded-2xl p-4 flex items-center gap-3 border border-gray-100 shadow-lg shadow-gray-900/5 pointer-events-auto">
+  <div className="sticky top-[18px] z-[150] -mx-[18px] px-[18px] pb-2 bg-transparent pointer-events-none">
+     <div className="relative bg-white/90 backdrop-blur-xl rounded-2xl p-4 flex items-center gap-3 border border-gray-100 shadow-lg shadow-gray-900/5 pointer-events-auto">
         <Search size={18} className="text-gray-400 flex-shrink-0" />
         <input 
           ref={inputRef}
@@ -234,7 +244,6 @@ const StickySearchBar = ({ value, onChange, onFocus, onBlur, placeholder, inputR
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
                     onChange('');
-                    // บังคับ Focus กลับทันทีเพื่อป้องกันแป้นพิมพ์หุบ
                     setTimeout(() => {
                         if (inputRef && inputRef.current) inputRef.current.focus();
                     }, 0);
@@ -638,6 +647,7 @@ const MainApp = ({ onLogout }) => {
   const touchStartRef = useRef(0);
   
   const categoryContainerRef = useRef(null);
+  const scrollContainerRef = useRef(null); 
   const searchInputRef = useRef(null);
   const isAutoScrolling = useRef(false);
   const isJustFocused = useRef(false); 
@@ -669,36 +679,30 @@ const MainApp = ({ onLogout }) => {
     return { promos: filteredNews.filter(n => n.type === 'Promotion'), news: filteredNews.filter(n => n.type === 'News'), menus: filteredMenus };
   }, [globalSearchQuery]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-        setScrollProgress(Math.min(1, Math.max(0, window.scrollY / 55)));
-        
-        // --- แก้ไข: เอา logic ซ่อนแป้นพิมพ์ออกจากตรงนี้ ---
-        // เพราะการลบคำค้นหาทำให้ความสูงเปลี่ยนและเกิด event scroll อัตโนมัติ (Layout Shift)
-        // ทำให้ระบบเข้าใจผิดว่าผู้ใช้เลื่อนหน้าจอ จึงสั่งปิดแป้นพิมพ์
-        
-        // if (!isAutoScrolling.current && !isJustFocused.current && document.activeElement === searchInputRef.current) {
-        //    searchInputRef.current.blur();
-        // }
-    };
+  // Main Scroll Handler - attached to div
+  const handleScroll = (e) => {
+    const scrollTop = e.currentTarget.scrollTop;
+    setScrollProgress(Math.min(1, Math.max(0, scrollTop / 55)));
     
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    // Check if we need to hide keyboard (and user is not scrolling automatically)
+    if (!isAutoScrolling.current && !isJustFocused.current && document.activeElement === searchInputRef.current) {
+        searchInputRef.current.blur();
+    }
+  };
 
   // Use touchmove to distinguish user scroll from system scroll
   const handleTouchMoveOnBody = (e) => {
-    // --- ย้ายมาเช็คตรงนี้แทน ---
-    // จะทำงานเมื่อ "นิ้วของผู้ใช้" เลื่อนหน้าจอจริงๆ เท่านั้น
-    if (!isAutoScrolling.current && document.activeElement === searchInputRef.current) {
+    if (!isAutoScrolling.current && !isJustFocused.current && document.activeElement === searchInputRef.current) {
         searchInputRef.current.blur();
     }
     
     // Pull to Refresh
+    const containerScrollY = scrollContainerRef.current ? scrollContainerRef.current.scrollTop : 0;
     const touchY = e.touches[0].clientY;
     const diff = touchY - touchStartRef.current;
-    if (window.scrollY === 0 && diff > 0 && !isRefreshing) {
-       // Resistance
+    
+    // Use containerScrollY, NOT window.scrollY
+    if (containerScrollY <= 10 && diff > 0 && !isRefreshing) {
        setPullDistance(Math.min(diff * 0.4, 120)); 
     }
   };
@@ -708,22 +712,26 @@ const MainApp = ({ onLogout }) => {
     let scrollTimeout;
     let layoutShiftTimeout;
 
-    if (currentPage === 'menu' && categoryContainerRef.current) {
+    if (currentPage === 'menu' && categoryContainerRef.current && scrollContainerRef.current) {
         isAutoScrolling.current = true;
 
-        layoutShiftTimeout = setTimeout(() => {
-        }, 100);
+        layoutShiftTimeout = setTimeout(() => {}, 100);
 
         scrollTimeout = setTimeout(() => {
+            const container = scrollContainerRef.current;
             const element = categoryContainerRef.current;
+            
             const headerOffset = 85; 
-            const elementPosition = element.getBoundingClientRect().top + window.scrollY;
-            const offsetPosition = elementPosition - headerOffset;
+            const containerRect = container.getBoundingClientRect();
+            const elementRect = element.getBoundingClientRect();
+            const currentScrollTop = container.scrollTop;
+            const relativeTop = elementRect.top - containerRect.top;
+            const targetScrollTop = currentScrollTop + relativeTop - headerOffset;
 
-            if (window.scrollY > offsetPosition) {
+            if (currentScrollTop > targetScrollTop) {
                  isAutoScrolling.current = true; 
-                 window.scrollTo({
-                    top: offsetPosition,
+                 container.scrollTo({
+                    top: targetScrollTop,
                     behavior: 'smooth'
                 });
                 
@@ -735,7 +743,10 @@ const MainApp = ({ onLogout }) => {
             }
         }, 500); 
     } else {
-        isAutoScrolling.current = false;
+        isAutoScrolling.current = true;
+        scrollTimeout = setTimeout(() => {
+            isAutoScrolling.current = false;
+        }, 300);
     }
     
     return () => {
@@ -746,17 +757,22 @@ const MainApp = ({ onLogout }) => {
 
   const handleMenuSearchChange = (text) => {
       isAutoScrolling.current = true; 
+      isJustFocused.current = true; 
       setMenuSearchQuery(text);
+      setTimeout(() => { isJustFocused.current = false; }, 800);
   };
 
   const handleGlobalSearchChange = (text) => {
       isAutoScrolling.current = true;
+      isJustFocused.current = true; 
       setGlobalSearchQuery(text);
+      setTimeout(() => { isJustFocused.current = false; }, 1000); 
   };
 
   // --- Pull to Refresh Logic ---
   const handleTouchStart = (e) => {
-    if (window.scrollY === 0) {
+    const containerScrollY = scrollContainerRef.current ? scrollContainerRef.current.scrollTop : 0;
+    if (containerScrollY === 0) {
       touchStartRef.current = e.touches[0].clientY;
       setIsPulling(true);
     }
@@ -780,7 +796,6 @@ const MainApp = ({ onLogout }) => {
   const total = cart.reduce((sum, item) => sum + item.price, 0); 
   const isGlobalSearchEmpty = globalSearchResults.promos.length === 0 && globalSearchResults.news.length === 0 && globalSearchResults.menus.length === 0;
   
-  // ตรวจสอบสถานะเพื่อล็อกการเลื่อนหน้าจอ
   const isScrollLocked = (currentPage === 'menu' && filteredMenuResults.length === 0) || 
                          (currentPage === 'search' && !globalSearchQuery) || 
                          (currentPage === 'search' && isGlobalSearchEmpty) ||
@@ -819,12 +834,15 @@ const MainApp = ({ onLogout }) => {
     onLogout();
   };
 
-  // Calculate dynamic padding top for pull-to-refresh effect (Base 64px + pull distance)
-  const mainPaddingTop = 64 + pullDistance;
+  // Calculate dynamic padding top for pull-to-refresh effect
+  // Use 80px (pt-20 equivalent) as base for padding
+  const correctedMainPaddingTop = 80 + pullDistance;
 
   return (
     <div 
-        className={`min-h-screen bg-[#FDFDFD] text-[#111827] select-none ${isScrollLocked ? 'h-screen overflow-hidden' : 'pb-32'}`} 
+        ref={scrollContainerRef}
+        className={`h-[100dvh] bg-[#FDFDFD] text-[#111827] select-none ${isScrollLocked ? 'overflow-hidden' : 'pb-32 overflow-y-auto'}`} // Fixed height class
+        onScroll={handleScroll}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMoveOnBody}
         onTouchEnd={handleTouchEnd}
@@ -833,9 +851,9 @@ const MainApp = ({ onLogout }) => {
 
       {/* Pull to Refresh Indicator */}
       <div 
-          className={`fixed top-20 left-0 right-0 z-[80] flex justify-center pointer-events-none transition-transform duration-200 ease-out ${isPulling ? '!transition-none' : ''}`}
+          className={`fixed top-4 left-0 right-0 z-[130] flex justify-center pointer-events-none transition-transform duration-200 ease-out ${isPulling ? '!transition-none' : ''}`}
           style={{ 
-              transform: `translateY(${pullDistance > 0 ? pullDistance - 20 : -50}px)`,
+              transform: `translateY(${pullDistance > 0 ? pullDistance : 0}px)`, 
               opacity: pullDistance > 0 ? Math.min(pullDistance / 40, 1) : 0
           }}
       >
@@ -850,7 +868,7 @@ const MainApp = ({ onLogout }) => {
 
       <main 
         className={`px-[18px] transition-all duration-200 ease-out ${isPulling ? '!transition-none' : ''}`}
-        style={{ paddingTop: `${mainPaddingTop}px` }}
+        style={{ paddingTop: `${correctedMainPaddingTop}px` }}
       >
         
         {currentPage === 'home' && (
@@ -885,6 +903,8 @@ const MainApp = ({ onLogout }) => {
                 onChange={handleMenuSearchChange}
                 onFocus={() => {
                   setIsSearching(true);
+                  isJustFocused.current = true;
+                  setTimeout(() => { isJustFocused.current = false; }, 800);
                 }} 
                 onBlur={() => setTimeout(() => setIsSearching(false), 100)} 
                 placeholder="ค้นหาเมนู หรือหมวดหมู่..." 
@@ -920,6 +940,8 @@ const MainApp = ({ onLogout }) => {
                 onChange={handleGlobalSearchChange}
                 onFocus={() => {
                   setIsSearching(true);
+                  isJustFocused.current = true;
+                  setTimeout(() => { isJustFocused.current = false; }, 800);
                 }}
                 onBlur={() => setTimeout(() => setIsSearching(false), 100)} 
                 placeholder="ค้นหาโปรโมชั่น ข่าวสาร หรือเมนู..." 
@@ -970,8 +992,8 @@ const MainApp = ({ onLogout }) => {
 
         {currentPage === 'order' && (
            <div className="space-y-6">
-              <div className="sticky top-0 z-[120] -mx-[18px] px-[18px] py-2 bg-transparent pointer-events-none">
-                 <div className="p-6 rounded-[32px] shadow-xl border flex justify-between items-center pointer-events-auto mt-2" style={{ backgroundColor: '#ffffff', borderColor: '#f3f4f6' }}>
+              <div className="sticky top-[18px] z-[150] -mx-[18px] px-[18px] pb-2 bg-transparent pointer-events-none">
+                 <div className="p-6 rounded-[32px] shadow-xl border flex justify-between items-center pointer-events-auto mt-2 bg-white/90 backdrop-blur-xl" style={{ borderColor: '#f3f4f6' }}>
                      <div><p className="text-[10px] font-bold uppercase text-gray-400">ราคารวม</p><p className="text-3xl font-black" style={{ color: '#00704A' }}>฿{total}</p></div>
                      <button className="text-white px-10 py-4 rounded-2xl font-black active:scale-95 transition-transform" style={{ backgroundColor: '#00704A', boxShadow: `0 10px 15px -3px ${alpha('#00704A', '0.3')}` }}>สั่งรายการ</button>
                  </div>
