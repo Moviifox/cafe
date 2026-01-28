@@ -137,9 +137,8 @@ const GlobalStyles = () => (
     
     body { 
         font-family: 'Foxgraphie', 'Plus Jakarta Sans', 'Anuphan', sans-serif; 
-        -webkit-tap-highlight-color: transparent;
-        /* ป้องกันการเด้งของ Safari เพื่อให้ JS ควบคุมการดึงลงได้ */
-        overscroll-behavior-y: none; 
+        -webkit-tap-highlight-color: transparent; 
+        overscroll-behavior-y: none; /* Important for PWA pull-to-refresh logic */
     }
     
     /* Utility class for Extra Bold simulation */
@@ -209,7 +208,7 @@ const PersistentHeader = ({ title, scrollProgress, onProfileClick }) => (
     />
     <div className="relative pt-4 pb-2 px-[18px] flex justify-between items-center"
       style={{ opacity: 1 - scrollProgress, transform: `translateY(${-(scrollProgress * 15)}px)`, transition: 'opacity 0.2s ease-out, transform 0.2s ease-out' }}>
-      <h1 className="text-3xl font-black tracking-tight text-gray-900">{title}</h1>
+      <h1 className="text-[26px] font-black tracking-tight text-gray-900">{title}</h1>
       <button onClick={onProfileClick} className="w-10 h-10 rounded-full border border-gray-100 overflow-hidden shadow-sm bg-white pointer-events-auto active:scale-90 transition-transform">
         <img src={MOCK_DATA.user.photo} alt="user" className="w-full h-full object-cover" />
       </button>
@@ -691,7 +690,7 @@ const MainApp = ({ onLogout }) => {
     // Pull to Refresh
     const touchY = e.touches[0].clientY;
     const diff = touchY - touchStartRef.current;
-    if (window.scrollY === 0 && diff > 0 && !isRefreshing) {
+    if (window.scrollY <= 10 && diff > 0 && !isRefreshing) {
        // Resistance
        setPullDistance(Math.min(diff * 0.4, 120)); 
     }
@@ -841,7 +840,7 @@ const MainApp = ({ onLogout }) => {
 
   return (
     <div 
-        className={`min-h-screen bg-[#FDFDFD] text-[#111827] select-none ${isScrollLocked ? 'h-screen overflow-hidden' : 'pb-32'}`} 
+        className={`min-h-[100dvh] bg-[#FDFDFD] text-[#111827] select-none ${isScrollLocked ? 'h-[100dvh] overflow-hidden' : 'pb-32 overflow-y-auto'}`} 
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMoveOnBody}
         onTouchEnd={handleTouchEnd}
@@ -850,9 +849,9 @@ const MainApp = ({ onLogout }) => {
 
       {/* Pull to Refresh Indicator */}
       <div 
-          className={`fixed top-20 left-0 right-0 z-[80] flex justify-center pointer-events-none transition-transform duration-200 ease-out ${isPulling ? '!transition-none' : ''}`}
+          className={`fixed top-4 left-0 right-0 z-[130] flex justify-center pointer-events-none transition-transform duration-200 ease-out ${isPulling ? '!transition-none' : ''}`}
           style={{ 
-              transform: `translateY(${pullDistance > 0 ? pullDistance - 20 : -50}px)`,
+              transform: `translateY(${pullDistance > 0 ? pullDistance : 0}px)`, // Adjusted logic slightly for cleaner movement from top-4
               opacity: pullDistance > 0 ? Math.min(pullDistance / 40, 1) : 0
           }}
       >
