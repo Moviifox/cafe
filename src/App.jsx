@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { 
   Home, 
   ShoppingBag, 
@@ -135,20 +135,10 @@ const GlobalStyles = () => (
     }
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Anuphan:wght@400;700&display=swap');
     
-    html, body { 
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden; /* ล็อก Body ไว้ */
+    body { 
         font-family: 'Foxgraphie', 'Plus Jakarta Sans', 'Anuphan', sans-serif; 
         -webkit-tap-highlight-color: transparent; 
         overscroll-behavior-y: none;
-    }
-
-    #root {
-        width: 100%;
-        height: 100%;
     }
     
     .font-extra-thick {
@@ -244,9 +234,6 @@ const StickySearchBar = ({ value, onChange, onFocus, onBlur, placeholder, inputR
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
                     onChange('');
-                    setTimeout(() => {
-                        if (inputRef && inputRef.current) inputRef.current.focus();
-                    }, 0);
                 }} 
                 className="p-1"
             >
@@ -635,6 +622,7 @@ const MainApp = ({ onLogout }) => {
   const toastTimeoutRef = useRef(null);
   const [deleteConfirmItem, setDeleteConfirmItem] = useState(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [scrollPositions, setScrollPositions] = useState({ home: 0, menu: 0, search: 0, order: 0 });
 
   const [menuSearchQuery, setMenuSearchQuery] = useState('');
   const [activeMenuCategory, setActiveMenuCategory] = useState('ทั้งหมด');
@@ -652,6 +640,9 @@ const MainApp = ({ onLogout }) => {
   const isAutoScrolling = useRef(false);
   const isJustFocused = useRef(false); 
   const [isPulling, setIsPulling] = useState(false);
+  
+  // Ref for previous query to track changes
+  const prevMenuSearchQuery = useRef(menuSearchQuery);
 
   useEffect(() => {
     const isModalOpen = showProfile || selectedMenu || editingItem || deleteConfirmItem || showLogoutConfirm;
@@ -679,16 +670,38 @@ const MainApp = ({ onLogout }) => {
     return { promos: filteredNews.filter(n => n.type === 'Promotion'), news: filteredNews.filter(n => n.type === 'News'), menus: filteredMenus };
   }, [globalSearchQuery]);
 
-  // Main Scroll Handler - attached to div
+  // Main Scroll Handler
   const handleScroll = (e) => {
     const scrollTop = e.currentTarget.scrollTop;
     setScrollProgress(Math.min(1, Math.max(0, scrollTop / 55)));
     
-    // Check if we need to hide keyboard (and user is not scrolling automatically)
+    // Hide keyboard logic: Only if user scrolls, not auto-scroll or just focused
     if (!isAutoScrolling.current && !isJustFocused.current && document.activeElement === searchInputRef.current) {
         searchInputRef.current.blur();
     }
   };
+
+  // Change page handler
+  const changePage = (newPage) => {
+    if (currentPage === newPage) return;
+    
+    if (scrollContainerRef.current) {
+        const scrollTop = scrollContainerRef.current.scrollTop;
+        setScrollPositions(prev => ({ ...prev, [currentPage]: scrollTop }));
+    }
+    
+    setCurrentPage(newPage);
+  };
+
+  // Restore scroll position
+  useLayoutEffect(() => {
+      if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTop = scrollPositions[currentPage] || 0;
+      }
+      
+      // Reset isJustFocused on page change to avoid stale state issues
+      isJustFocused.current = false;
+  }, [currentPage]);
 
   // Use touchmove to distinguish user scroll from system scroll
   const handleTouchMoveOnBody = (e) => {
@@ -701,21 +714,28 @@ const MainApp = ({ onLogout }) => {
     const touchY = e.touches[0].clientY;
     const diff = touchY - touchStartRef.current;
     
-    // Use containerScrollY, NOT window.scrollY
     if (containerScrollY <= 10 && diff > 0 && !isRefreshing) {
        setPullDistance(Math.min(diff * 0.4, 120)); 
     }
   };
 
-  // --- Logic: Auto Scroll to Categories on Search ---
+  // --- Logic: Auto Scroll to Categories on Search (Filtered by query change) ---
   useEffect(() => {
     let scrollTimeout;
-    let layoutShiftTimeout;
+    
+    // Check if query actually changed
+    const queryChanged = menuSearchQuery !== prevMenuSearchQuery.current;
+    
+    // Always update the ref
+    prevMenuSearchQuery.current = menuSearchQuery;
 
-    if (currentPage === 'menu' && categoryContainerRef.current && scrollContainerRef.current) {
+    // Only run auto-scroll logic if query changed OR if it's a new mount of Menu page with existing query (optional, usually undesired)
+    // Here we want it only on query change or explicit category clear.
+    // However, when switching tabs, we don't want to scroll. The `prevMenuSearchQuery` ref persists across re-renders in MainApp.
+    // So queryChanged will be false when switching back to Menu if query hasn't changed.
+    
+    if (currentPage === 'menu' && categoryContainerRef.current && scrollContainerRef.current && queryChanged) {
         isAutoScrolling.current = true;
-
-        layoutShiftTimeout = setTimeout(() => {}, 100);
 
         scrollTimeout = setTimeout(() => {
             const container = scrollContainerRef.current;
@@ -724,10 +744,12 @@ const MainApp = ({ onLogout }) => {
             const headerOffset = 85; 
             const containerRect = container.getBoundingClientRect();
             const elementRect = element.getBoundingClientRect();
+            
             const currentScrollTop = container.scrollTop;
             const relativeTop = elementRect.top - containerRect.top;
             const targetScrollTop = currentScrollTop + relativeTop - headerOffset;
 
+            // Scroll if needed
             if (currentScrollTop > targetScrollTop) {
                  isAutoScrolling.current = true; 
                  container.scrollTo({
@@ -742,18 +764,22 @@ const MainApp = ({ onLogout }) => {
                 isAutoScrolling.current = false;
             }
         }, 500); 
-    } else {
-        isAutoScrolling.current = true;
-        scrollTimeout = setTimeout(() => {
-            isAutoScrolling.current = false;
-        }, 300);
+    } 
+    // Handle layout shifts for Global Search page similarly if needed, or simply unlock
+    else {
+         // Ensure auto scrolling is off if not triggered
+         // isAutoScrolling.current = false; 
+         // Note: We don't forcefully set false here immediately to allow other logics (like manual set in handlers) to work.
+         // But for safety after a delay:
+         scrollTimeout = setTimeout(() => {
+             isAutoScrolling.current = false;
+         }, 500);
     }
     
     return () => {
         clearTimeout(scrollTimeout);
-        clearTimeout(layoutShiftTimeout);
     };
-  }, [menuSearchQuery, currentPage, filteredMenuResults.length, globalSearchQuery, cart.length]);
+  }, [menuSearchQuery, currentPage]); // Remove other deps to focus on query change
 
   const handleMenuSearchChange = (text) => {
       isAutoScrolling.current = true; 
@@ -796,6 +822,9 @@ const MainApp = ({ onLogout }) => {
   const total = cart.reduce((sum, item) => sum + item.price, 0); 
   const isGlobalSearchEmpty = globalSearchResults.promos.length === 0 && globalSearchResults.news.length === 0 && globalSearchResults.menus.length === 0;
   
+  // isScrollLocked no longer affects overflow of main container, but maybe content inside?
+  // We keep it to conditionally apply classes if needed, or remove if causing issues.
+  // In the previous fix, we used h-[100dvh] and overflow-y-auto, so locking means overflow-hidden.
   const isScrollLocked = (currentPage === 'menu' && filteredMenuResults.length === 0) || 
                          (currentPage === 'search' && !globalSearchQuery) || 
                          (currentPage === 'search' && isGlobalSearchEmpty) ||
@@ -834,14 +863,12 @@ const MainApp = ({ onLogout }) => {
     onLogout();
   };
 
-  // Calculate dynamic padding top for pull-to-refresh effect
-  // Use 80px (pt-20 equivalent) as base for padding
   const correctedMainPaddingTop = 80 + pullDistance;
 
   return (
     <div 
         ref={scrollContainerRef}
-        className={`h-[100dvh] bg-[#FDFDFD] text-[#111827] select-none ${isScrollLocked ? 'overflow-hidden' : 'pb-32 overflow-y-auto'}`} // Fixed height class
+        className={`h-[100dvh] bg-[#FDFDFD] text-[#111827] select-none ${isScrollLocked ? 'overflow-hidden' : 'pb-32 overflow-y-auto'}`} 
         onScroll={handleScroll}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMoveOnBody}
@@ -1038,7 +1065,7 @@ const MainApp = ({ onLogout }) => {
         <div className="flex-1 backdrop-blur-xl rounded-full flex items-center justify-around p-[2px] border shadow-2xl pointer-events-auto h-[64px]" 
              style={{ backgroundColor: alpha('#ffffff', '0.9'), borderColor: alpha('#f3f4f6', '0.5') }}>
           {[{ id: 'home', icon: Coffee, label: 'หน้าร้าน' }, { id: 'menu', icon: LayoutGrid, label: 'เมนู' }, { id: 'order', icon: ShoppingBag, label: 'ออเดอร์' }].map((item) => (
-            <button key={item.id} onClick={() => { setCurrentPage(item.id); window.scrollTo({ top: 0, behavior: 'instant' }); }} className={`relative flex-1 flex flex-col items-center justify-center h-full rounded-full transition-all duration-300`} style={{ color: currentPage === item.id ? '#00704A' : '#9ca3af' }}>
+            <button key={item.id} onClick={() => { changePage(item.id); window.scrollTo({ top: 0, behavior: 'instant' }); }} className={`relative flex-1 flex flex-col items-center justify-center h-full rounded-full transition-all duration-300`} style={{ color: currentPage === item.id ? '#00704A' : '#9ca3af' }}>
               {currentPage === item.id && <div className="absolute inset-[2px] rounded-full" style={{ backgroundColor: '#f1f5f9' }} />}
               <item.icon size={22} strokeWidth={currentPage === item.id ? 2.5 : 2} className="relative z-10" />
               <span className="text-[10px] mt-1 font-bold relative z-10">{item.label}</span>
@@ -1046,7 +1073,7 @@ const MainApp = ({ onLogout }) => {
             </button>
           ))}
         </div>
-        <button onClick={() => { setCurrentPage('search'); window.scrollTo({ top: 0, behavior: 'instant' }); }} 
+        <button onClick={() => { changePage('search'); window.scrollTo({ top: 0, behavior: 'instant' }); }} 
                 className={`w-[64px] h-[64px] flex-shrink-0 rounded-full flex items-center justify-center backdrop-blur-xl border shadow-2xl pointer-events-auto transition-all duration-300`} 
                 style={{ backgroundColor: currentPage === 'search' ? '#00704A' : alpha('#ffffff', '0.9'), borderColor: alpha('#ffffff', '0.5'), color: currentPage === 'search' ? '#ffffff' : '#9ca3af' }}>
           <Search size={26} strokeWidth={3} />
