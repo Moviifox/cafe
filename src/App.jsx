@@ -138,10 +138,9 @@ const GlobalStyles = () => (
     body { 
         font-family: 'Foxgraphie', 'Plus Jakarta Sans', 'Anuphan', sans-serif; 
         -webkit-tap-highlight-color: transparent; 
-        overscroll-behavior-y: none; /* Important for PWA pull-to-refresh logic */
+        overscroll-behavior-y: none;
     }
     
-    /* Utility class for Extra Bold simulation */
     .font-extra-thick {
         font-weight: 900;
         text-shadow: 0.5px 0 0 currentColor;
@@ -235,6 +234,7 @@ const StickySearchBar = ({ value, onChange, onFocus, onBlur, placeholder, inputR
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
                     onChange('');
+                    // บังคับ Focus กลับทันทีเพื่อป้องกันแป้นพิมพ์หุบ
                     setTimeout(() => {
                         if (inputRef && inputRef.current) inputRef.current.focus();
                     }, 0);
@@ -672,9 +672,14 @@ const MainApp = ({ onLogout }) => {
   useEffect(() => {
     const handleScroll = () => {
         setScrollProgress(Math.min(1, Math.max(0, window.scrollY / 55)));
-        if (!isAutoScrolling.current && !isJustFocused.current && document.activeElement === searchInputRef.current) {
-            searchInputRef.current.blur();
-        }
+        
+        // --- แก้ไข: เอา logic ซ่อนแป้นพิมพ์ออกจากตรงนี้ ---
+        // เพราะการลบคำค้นหาทำให้ความสูงเปลี่ยนและเกิด event scroll อัตโนมัติ (Layout Shift)
+        // ทำให้ระบบเข้าใจผิดว่าผู้ใช้เลื่อนหน้าจอ จึงสั่งปิดแป้นพิมพ์
+        
+        // if (!isAutoScrolling.current && !isJustFocused.current && document.activeElement === searchInputRef.current) {
+        //    searchInputRef.current.blur();
+        // }
     };
     
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -683,14 +688,16 @@ const MainApp = ({ onLogout }) => {
 
   // Use touchmove to distinguish user scroll from system scroll
   const handleTouchMoveOnBody = (e) => {
-    if (!isAutoScrolling.current && !isJustFocused.current && document.activeElement === searchInputRef.current) {
+    // --- ย้ายมาเช็คตรงนี้แทน ---
+    // จะทำงานเมื่อ "นิ้วของผู้ใช้" เลื่อนหน้าจอจริงๆ เท่านั้น
+    if (!isAutoScrolling.current && document.activeElement === searchInputRef.current) {
         searchInputRef.current.blur();
     }
     
     // Pull to Refresh
     const touchY = e.touches[0].clientY;
     const diff = touchY - touchStartRef.current;
-    if (window.scrollY <= 10 && diff > 0 && !isRefreshing) {
+    if (window.scrollY === 0 && diff > 0 && !isRefreshing) {
        // Resistance
        setPullDistance(Math.min(diff * 0.4, 120)); 
     }
@@ -702,70 +709,49 @@ const MainApp = ({ onLogout }) => {
     let layoutShiftTimeout;
 
     if (currentPage === 'menu' && categoryContainerRef.current) {
-        // 1. Lock scroll-hide IMMEDIATELY when results/query update
-        // This prevents "Layout Shift" scrolls from hiding the keyboard
         isAutoScrolling.current = true;
 
-        // Release lock shortly if no debounce scroll happens (covers minor layout shifts)
         layoutShiftTimeout = setTimeout(() => {
-             // Only release if we haven't started the debounce scroll logic yet
-             // Check if user is still typing? handled by dependency re-run
         }, 100);
 
-        // 2. Debounce for the specific "Jump to Category" action
         scrollTimeout = setTimeout(() => {
             const element = categoryContainerRef.current;
             const headerOffset = 85; 
             const elementPosition = element.getBoundingClientRect().top + window.scrollY;
             const offsetPosition = elementPosition - headerOffset;
 
-            // Check if scroll is actually needed
             if (window.scrollY > offsetPosition) {
-                 // Ensure lock is ON during the scroll
                  isAutoScrolling.current = true; 
                  window.scrollTo({
                     top: offsetPosition,
                     behavior: 'smooth'
                 });
                 
-                // Release lock AFTER scroll animation
                 setTimeout(() => {
                     isAutoScrolling.current = false;
                 }, 1000);
             } else {
-                // No scroll needed, safe to release lock
                 isAutoScrolling.current = false;
             }
-        }, 500); // 0.5s debounce
+        }, 500); 
     } else {
-        // Not in menu or invalid ref
-        // ADDED LOGIC: When on search page, briefly lock to prevent keyboard hiding on layout shifts
-        isAutoScrolling.current = true; // Lock initially
-        scrollTimeout = setTimeout(() => {
-            isAutoScrolling.current = false;
-        }, 300); // 300ms delay to ignore initial layout shift scroll
+        isAutoScrolling.current = false;
     }
     
     return () => {
         clearTimeout(scrollTimeout);
         clearTimeout(layoutShiftTimeout);
     };
-  }, [menuSearchQuery, currentPage, filteredMenuResults.length, globalSearchQuery, cart.length]); // Added cart.length for order page safety
+  }, [menuSearchQuery, currentPage, filteredMenuResults.length, globalSearchQuery, cart.length]);
 
   const handleMenuSearchChange = (text) => {
       isAutoScrolling.current = true; 
-      isJustFocused.current = true; 
       setMenuSearchQuery(text);
-      setTimeout(() => { isJustFocused.current = false; }, 800);
   };
 
   const handleGlobalSearchChange = (text) => {
       isAutoScrolling.current = true;
-      isJustFocused.current = true; 
       setGlobalSearchQuery(text);
-      
-      // *** FIX: Add delay to unlock, preventing hide on empty state layout shift ***
-      setTimeout(() => { isJustFocused.current = false; }, 1000); // Increased to 1000ms
   };
 
   // --- Pull to Refresh Logic ---
@@ -785,7 +771,6 @@ const MainApp = ({ onLogout }) => {
        setTimeout(() => {
           setIsRefreshing(false);
           setPullDistance(0);
-          // Removed toast message here
        }, 1500);
     } else {
        setPullDistance(0);
@@ -834,13 +819,12 @@ const MainApp = ({ onLogout }) => {
     onLogout();
   };
 
-  // Calculate dynamic padding top for pull-to-refresh effect (Base 80px + pull distance)
-  // Fix: pt-16 is 64px, so base should be 64.
-  const correctedMainPaddingTop = 64 + pullDistance;
+  // Calculate dynamic padding top for pull-to-refresh effect (Base 64px + pull distance)
+  const mainPaddingTop = 64 + pullDistance;
 
   return (
     <div 
-        className={`min-h-[100dvh] bg-[#FDFDFD] text-[#111827] select-none ${isScrollLocked ? 'h-[100dvh] overflow-hidden' : 'pb-32 overflow-y-auto'}`} 
+        className={`min-h-screen bg-[#FDFDFD] text-[#111827] select-none ${isScrollLocked ? 'h-screen overflow-hidden' : 'pb-32'}`} 
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMoveOnBody}
         onTouchEnd={handleTouchEnd}
@@ -849,9 +833,9 @@ const MainApp = ({ onLogout }) => {
 
       {/* Pull to Refresh Indicator */}
       <div 
-          className={`fixed top-4 left-0 right-0 z-[130] flex justify-center pointer-events-none transition-transform duration-200 ease-out ${isPulling ? '!transition-none' : ''}`}
+          className={`fixed top-20 left-0 right-0 z-[80] flex justify-center pointer-events-none transition-transform duration-200 ease-out ${isPulling ? '!transition-none' : ''}`}
           style={{ 
-              transform: `translateY(${pullDistance > 0 ? pullDistance : 0}px)`, // Adjusted logic slightly for cleaner movement from top-4
+              transform: `translateY(${pullDistance > 0 ? pullDistance - 20 : -50}px)`,
               opacity: pullDistance > 0 ? Math.min(pullDistance / 40, 1) : 0
           }}
       >
@@ -866,7 +850,7 @@ const MainApp = ({ onLogout }) => {
 
       <main 
         className={`px-[18px] transition-all duration-200 ease-out ${isPulling ? '!transition-none' : ''}`}
-        style={{ paddingTop: `${correctedMainPaddingTop}px` }}
+        style={{ paddingTop: `${mainPaddingTop}px` }}
       >
         
         {currentPage === 'home' && (
@@ -901,8 +885,6 @@ const MainApp = ({ onLogout }) => {
                 onChange={handleMenuSearchChange}
                 onFocus={() => {
                   setIsSearching(true);
-                  isJustFocused.current = true;
-                  setTimeout(() => { isJustFocused.current = false; }, 800);
                 }} 
                 onBlur={() => setTimeout(() => setIsSearching(false), 100)} 
                 placeholder="ค้นหาเมนู หรือหมวดหมู่..." 
@@ -938,8 +920,6 @@ const MainApp = ({ onLogout }) => {
                 onChange={handleGlobalSearchChange}
                 onFocus={() => {
                   setIsSearching(true);
-                  isJustFocused.current = true;
-                  setTimeout(() => { isJustFocused.current = false; }, 800);
                 }}
                 onBlur={() => setTimeout(() => setIsSearching(false), 100)} 
                 placeholder="ค้นหาโปรโมชั่น ข่าวสาร หรือเมนู..." 
@@ -1132,3 +1112,5 @@ const App = () => {
 };
 
 export default App;
+
+
