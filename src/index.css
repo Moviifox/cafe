@@ -12,9 +12,4 @@ body,
 body {
   margin: 0;
   background: #FDFDFD;
-  /* Support for safe area insets (iOS notch, Android navigation bar) */
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
 }
