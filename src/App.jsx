@@ -88,7 +88,7 @@ const MOCK_DATA = {
     };
   }),
   news: [
-    { id: 10, type: "Promotion", title: "สมาชิกใหม่รับส่วนลด 20%", content: "สิทธิพิเศษเฉพาะแก้วแรกสำหรับสมาชิกใหม่เท่านั้น สมัครเลยวันนี้!", image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=60&w=800", date: "2024-01-25" },
+    { id: 10, type: "Promotion", title: "สมาชิกใหม่รับส่วนลด 50%", content: "สิทธิพิเศษเฉพาะแก้วแรกสำหรับสมาชิกใหม่เท่านั้น สมัครเลยวันนี้!", image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=60&w=800", date: "2024-01-25" },
     { id: 9, type: "News", title: "เทศกาลสตอเบอร์รี่หวานฉ่ำ", content: "พบกับเมนูพิเศษจากสตอเบอร์รี่คัดเกรดส่งตรงจากฟาร์มทุกวัน", image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=60&w=800", date: "2024-01-20" },
     { id: 8, type: "Promotion", title: "ซื้อ 1 แถม 1 ทุกวันพุธ", content: "เอาใจสายหวานกับโปรโมชั่นซื้อเมนูปั่นหมวดใดก็ได้ 1 แถม 1", image: "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&q=60&w=800", date: "2024-01-15" }
   ]
@@ -1065,7 +1065,7 @@ const MainApp = ({ onLogout }) => {
       </div>
 
       {/* Navigation Bar - Fixed at bottom, NO hiding logic */}
-      <div className="fixed left-0 right-0 z-[150] flex items-center justify-between gap-3 px-[18px] pb-[18px] pointer-events-none transition-all duration-300 transform translate-y-0 opacity-100" style={{ bottom: 'env(safe-area-inset-bottom)' }}>
+      <div className="fixed bottom-[18px] left-0 right-0 z-[150] flex items-center justify-between gap-3 px-[18px] pointer-events-none transition-all duration-300 transform translate-y-0 opacity-100">
         <div className="flex-1 backdrop-blur-xl rounded-full flex items-center justify-around p-[2px] border shadow-2xl pointer-events-auto h-[64px]"
           style={{ backgroundColor: alpha('#ffffff', '0.9'), borderColor: alpha('#f3f4f6', '0.5') }}>
           {[{ id: 'home', icon: Coffee, label: 'หน้าร้าน' }, { id: 'menu', icon: LayoutGrid, label: 'เมนู' }, { id: 'order', icon: ShoppingBag, label: 'ออเดอร์' }].map((item) => (
@@ -1165,4 +1165,3 @@ const App = () => {
 };
 
 export default App;
-
