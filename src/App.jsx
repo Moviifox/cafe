@@ -616,6 +616,41 @@ const MainApp = ({ onLogout }) => {
   const [editingItem, setEditingItem] = useState(null);
   const [scrollProgress, setScrollProgress] = useState(0);
 
+  useEffect(() => {
+    const body = document.body;
+    body.style.transition = 'background-color 0.5s ease, backdrop-filter 0.5s ease';
+
+    if (selectedMenu || editingItem) {
+      body.style.backgroundColor = 'rgba(0,0,0,0)'; // Transparent to show blur
+      body.style.backdropFilter = 'blur(4px)';
+    } else {
+      body.style.backdropFilter = 'none';
+      switch (currentPage) {
+        case 'home':
+          body.style.backgroundColor = '#fcfcfc';
+          break;
+        case 'search':
+          body.style.backgroundColor = '#f8f8f8';
+          break;
+        case 'cart':
+          body.style.backgroundColor = '#ffffff';
+          break;
+        case 'profile':
+          body.style.backgroundColor = '#f5f5f5';
+          break;
+        default:
+          body.style.backgroundColor = '#fcfcfc';
+      }
+    }
+    
+    // Cleanup function to reset on component unmount
+    return () => {
+        body.style.backgroundColor = '';
+        body.style.backdropFilter = '';
+        body.style.transition = '';
+    };
+  }, [currentPage, selectedMenu, editingItem]);
+
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
