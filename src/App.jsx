@@ -1065,7 +1065,7 @@ const MainApp = ({ onLogout }) => {
       </div>
 
       {/* Navigation Bar - Fixed at bottom, NO hiding logic */}
-      <div className="fixed bottom-[18px] left-0 right-0 z-[150] flex items-center justify-between gap-3 px-[18px] pointer-events-none transition-all duration-300 transform translate-y-0 opacity-100">
+      <div className="fixed bottom-0 left-0 right-0 z-[150] flex items-center justify-between gap-3 px-[18px] pointer-events-none transition-all duration-300 transform translate-y-0 opacity-100" style={{ paddingBottom: 'calc(18px + env(safe-area-inset-bottom))' }}>
         <div className="flex-1 backdrop-blur-xl rounded-full flex items-center justify-around p-[2px] border shadow-2xl pointer-events-auto h-[64px]"
           style={{ backgroundColor: alpha('#ffffff', '0.9'), borderColor: alpha('#f3f4f6', '0.5') }}>
           {[{ id: 'home', icon: Coffee, label: 'หน้าร้าน' }, { id: 'menu', icon: LayoutGrid, label: 'เมนู' }, { id: 'order', icon: ShoppingBag, label: 'ออเดอร์' }].map((item) => (
