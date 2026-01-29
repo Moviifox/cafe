@@ -505,7 +505,7 @@ const SplashView = ({ onFinish }) => {
   const startX = useRef(0);
   const isDragging = useRef(false);
   const slides = [
-    { title: "ดื่มด่ำกับรสชาติแท้จริง555", desc: "สัมผัสความหอมกรุ่นของเมล็ดกาแฟสายพันธุ์ดีที่เราคัดสรรมาเพื่อคุณโดยเฉพาะ", image: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800" },
+    { title: "ดื่มด่ำกับรสชาติแท้จริง", desc: "สัมผัสความหอมกรุ่นของเมล็ดกาแฟสายพันธุ์ดีที่เราคัดสรรมาเพื่อคุณโดยเฉพาะ", image: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800" },
     { title: "สั่งง่าย จ่ายสะดวก", desc: "ไม่ต้องรอนาน สั่งเครื่องดื่มแก้วโปรดล่วงหน้าและชำระเงินได้ทันทีผ่านแอป", image: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?auto=format&fit=crop&q=80&w=800" },
     { title: "สิทธิพิเศษสำหรับคุณ", desc: "สะสมแต้มแลกรับส่วนลดและของรางวัลมากมายในทุกๆ การสั่งซื้อ", image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=800" }
   ];
@@ -871,8 +871,7 @@ const MainApp = ({ onLogout }) => {
   return (
     <div
       ref={scrollContainerRef}
-      className={`h-screen bg-[#FDFDFD] text-[#111827] select-none ${isScrollLocked ? 'overflow-hidden' : 'pb-32 overflow-y-auto'}`}
-      style={{ height: '-webkit-fill-available' }}
+      className={`h-[100dvh] bg-[#FDFDFD] text-[#111827] select-none ${isScrollLocked ? 'overflow-hidden' : 'pb-32 overflow-y-auto'}`}
       onScroll={handleScroll}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMoveOnBody}
@@ -1166,4 +1165,3 @@ const App = () => {
 };
 
 export default App;
-
