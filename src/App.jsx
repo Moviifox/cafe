@@ -224,7 +224,7 @@ const PersistentHeader = ({ title, scrollProgress, onProfileClick }) => (
 );
 
 const StickySearchBar = ({ value, onChange, onFocus, onBlur, placeholder, inputRef }) => (
-  <div className="sticky top-[18px] z-[150] -mx-[18px] px-[18px] pb-2 bg-transparent pointer-events-none">
+  <div className="sticky z-[150] -mx-[18px] px-[18px] pb-2 bg-transparent pointer-events-none" style={{ top: 'calc(18px + env(safe-area-inset-top))' }}>
     <div className="relative bg-white/90 backdrop-blur-xl rounded-2xl p-4 flex items-center gap-3 border border-gray-100 shadow-lg shadow-gray-900/5 pointer-events-auto">
       <Search size={18} className="text-gray-400 flex-shrink-0" />
       <input
@@ -1065,7 +1065,7 @@ const MainApp = ({ onLogout }) => {
       </div>
 
       {/* Navigation Bar - Fixed at bottom, NO hiding logic */}
-      <div className="fixed bottom-0 left-0 right-0 z-[150] flex items-center justify-between gap-3 px-[18px] pointer-events-none transition-all duration-300 transform translate-y-0 opacity-100" style={{ paddingBottom: 'calc(18px + env(safe-area-inset-bottom))' }}>
+      <div className="fixed left-0 right-0 z-[150] flex items-center justify-between gap-3 px-[18px] pb-[18px] pointer-events-none transition-all duration-300 transform translate-y-0 opacity-100" style={{ bottom: 'env(safe-area-inset-bottom)' }}>
         <div className="flex-1 backdrop-blur-xl rounded-full flex items-center justify-around p-[2px] border shadow-2xl pointer-events-auto h-[64px]"
           style={{ backgroundColor: alpha('#ffffff', '0.9'), borderColor: alpha('#f3f4f6', '0.5') }}>
           {[{ id: 'home', icon: Coffee, label: 'หน้าร้าน' }, { id: 'menu', icon: LayoutGrid, label: 'เมนู' }, { id: 'order', icon: ShoppingBag, label: 'ออเดอร์' }].map((item) => (
