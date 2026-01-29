@@ -2,20 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Lock the document scroll to prevent bounce/rubber-banding */
 html,
 body,
 #root {
   height: 100%;
   width: 100%;
+  margin: 0;
+  padding: 0;
   overflow: hidden;
-  overscroll-behavior: none;
+  position: fixed;
+  inset: 0;
 }
 
 body {
-  margin: 0;
   background: #FDFDFD;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  user-select: none;
 }
