@@ -881,8 +881,9 @@ const MainApp = ({ onLogout }) => {
 
       {/* Pull to Refresh Indicator */}
       <div
-        className={`fixed top-4 left-0 right-0 z-[130] flex justify-center pointer-events-none transition-transform duration-200 ease-out ${isPulling ? '!transition-none' : ''}`}
+        className={`fixed left-0 right-0 z-[130] flex justify-center pointer-events-none transition-transform duration-200 ease-out ${isPulling ? '!transition-none' : ''}`}
         style={{
+          top: 'calc(16px + env(safe-area-inset-top))',
           transform: `translateY(${pullDistance > 0 ? pullDistance : 0}px)`,
           opacity: pullDistance > 0 ? Math.min(pullDistance / 40, 1) : 0
         }}
@@ -898,7 +899,7 @@ const MainApp = ({ onLogout }) => {
 
       <main
         className={`px-[18px] transition-all duration-200 ease-out ${isPulling ? '!transition-none' : ''}`}
-        style={{ paddingTop: `${correctedMainPaddingTop}px` }}
+        style={{ paddingTop: `calc(${correctedMainPaddingTop}px + env(safe-area-inset-top))` }}
       >
 
         {currentPage === 'home' && (
