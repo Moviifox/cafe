@@ -195,9 +195,11 @@ const BouncingDotsLoader = ({ style }) => (
 );
 
 const PersistentHeader = ({ title, scrollProgress, onProfileClick }) => (
-  <div className="fixed top-0 left-0 right-0 z-[100] pointer-events-none" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-    <div className="absolute top-0 left-0 right-0 h-[60px]"
+  <div className="fixed top-0 left-0 right-0 z-[100] pointer-events-none">
+    <div className="absolute top-0 left-0 right-0"
       style={{
+        height: 'calc(60px + env(safe-area-inset-top))',
+        paddingTop: 'env(safe-area-inset-top)',
         background: `linear-gradient(to bottom,
           #ffffff 0%,
           ${alpha('#ffffff', '0.98')} 25%,
@@ -207,7 +209,12 @@ const PersistentHeader = ({ title, scrollProgress, onProfileClick }) => (
       }}
     />
     <div className="relative pt-4 pb-2 px-[18px] flex justify-between items-center"
-      style={{ opacity: 1 - scrollProgress, transform: `translateY(${-(scrollProgress * 15)}px)`, transition: 'opacity 0.2s ease-out, transform 0.2s ease-out' }}>
+      style={{
+        paddingTop: 'calc(16px + env(safe-area-inset-top))',
+        opacity: 1 - scrollProgress,
+        transform: `translateY(${-(scrollProgress * 15)}px)`,
+        transition: 'opacity 0.2s ease-out, transform 0.2s ease-out'
+      }}>
       <h1 className="text-[26px] font-black tracking-tight text-gray-900">{title}</h1>
       <button onClick={onProfileClick} className="w-10 h-10 rounded-full border border-gray-100 overflow-hidden shadow-sm bg-white pointer-events-auto active:scale-90 transition-transform">
         <img src={MOCK_DATA.user.photo} alt="user" className="w-full h-full object-cover" />
@@ -1057,7 +1064,7 @@ const MainApp = ({ onLogout }) => {
       </div>
 
       {/* Navigation Bar - Fixed at bottom, NO hiding logic */}
-      <div className="fixed bottom-0 left-0 right-0 z-[150] flex items-center justify-between gap-3 px-[18px] pb-[18px] pointer-events-none transition-all duration-300 transform translate-y-0 opacity-100" style={{ paddingBottom: 'max(18px, env(safe-area-inset-bottom))' }}>
+      <div className="fixed bottom-0 left-0 right-0 z-[150] flex items-center justify-between gap-3 px-[18px] pointer-events-none transition-all duration-300 transform translate-y-0 opacity-100" style={{ paddingBottom: 'calc(18px + env(safe-area-inset-bottom))' }}>
         <div className="flex-1 backdrop-blur-xl rounded-full flex items-center justify-around p-[2px] border shadow-2xl pointer-events-auto h-[64px]"
           style={{ backgroundColor: alpha('#ffffff', '0.9'), borderColor: alpha('#f3f4f6', '0.5') }}>
           {[{ id: 'home', icon: Coffee, label: 'หน้าร้าน' }, { id: 'menu', icon: LayoutGrid, label: 'เมนู' }, { id: 'order', icon: ShoppingBag, label: 'ออเดอร์' }].map((item) => (
@@ -1086,7 +1093,7 @@ const MainApp = ({ onLogout }) => {
       {showLogoutConfirm && <LogoutConfirmModal onConfirm={handleLogout} onCancel={() => setShowLogoutConfirm(false)} />}
 
       {showProfile && (
-        <div className="fixed inset-0 z-[300] bg-[#f2f2f7] p-[18px]">
+        <div className="fixed inset-0 z-[300] bg-[#f2f2f7] p-[18px]" style={{ paddingTop: 'calc(18px + env(safe-area-inset-top))', paddingBottom: 'calc(18px + env(safe-area-inset-bottom))' }}>
           <div className="flex justify-between items-center mb-10 mt-6 px-2"><h2 className="text-2xl font-black">โปรไฟล์</h2><button onClick={() => setShowProfile(false)} className="p-2 bg-white rounded-full shadow-sm"><X size={24} /></button></div>
           <div className="rounded-[40px] p-10 text-white shadow-2xl relative overflow-hidden mb-10" style={{ backgroundColor: '#1c1c1e' }}>
             <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px]" style={{ backgroundColor: alpha('#00704A', '0.2') }}></div>
