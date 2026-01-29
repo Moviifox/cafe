@@ -871,8 +871,7 @@ const MainApp = ({ onLogout }) => {
   return (
     <div
       ref={scrollContainerRef}
-      className={`bg-[#FDFDFD] text-[#111827] select-none ${isScrollLocked ? 'overflow-hidden' : 'pb-32 overflow-y-auto'}`}
-      style={{ height: 'calc(var(--vh, 1vh) * 100)' }}
+      className={`h-[100dvh] bg-[#FDFDFD] text-[#111827] select-none ${isScrollLocked ? 'overflow-hidden' : 'pb-32 overflow-y-auto'}`}
       onScroll={handleScroll}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMoveOnBody}
