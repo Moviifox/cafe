@@ -6,14 +6,11 @@ html,
 body,
 #root {
   height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  position: fixed;
-  inset: 0;
+  height: 100vh;
+  height: -webkit-fill-available;
 }
 
 body {
+  margin: 0;
   background: #FDFDFD;
 }
