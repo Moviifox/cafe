@@ -88,7 +88,7 @@ const MOCK_DATA = {
     };
   }),
   news: [
-    { id: 10, type: "Promotion", title: "สมาชิกใหม่รับส่วนลด 20%", content: "สิทธิพิเศษเฉพาะแก้วแรกสำหรับสมาชิกใหม่เท่านั้น สมัครเลยวันนี้!", image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=60&w=800", date: "2024-01-25" },
+    { id: 10, type: "Promotion", title: "สมาชิกใหม่รับส่วนลด 50%", content: "สิทธิพิเศษเฉพาะแก้วแรกสำหรับสมาชิกใหม่เท่านั้น สมัครเลยวันนี้!", image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=60&w=800", date: "2024-01-25" },
     { id: 9, type: "News", title: "เทศกาลสตอเบอร์รี่หวานฉ่ำ", content: "พบกับเมนูพิเศษจากสตอเบอร์รี่คัดเกรดส่งตรงจากฟาร์มทุกวัน", image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=60&w=800", date: "2024-01-20" },
     { id: 8, type: "Promotion", title: "ซื้อ 1 แถม 1 ทุกวันพุธ", content: "เอาใจสายหวานกับโปรโมชั่นซื้อเมนูปั่นหมวดใดก็ได้ 1 แถม 1", image: "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&q=60&w=800", date: "2024-01-15" }
   ]
@@ -505,7 +505,7 @@ const SplashView = ({ onFinish }) => {
   const startX = useRef(0);
   const isDragging = useRef(false);
   const slides = [
-    { title: "ดื่มด่ำกับรสชาติแท้จริง555", desc: "สัมผัสความหอมกรุ่นของเมล็ดกาแฟสายพันธุ์ดีที่เราคัดสรรมาเพื่อคุณโดยเฉพาะ", image: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800" },
+    { title: "ดื่มด่ำกับรสชาติแท้จริง", desc: "สัมผัสความหอมกรุ่นของเมล็ดกาแฟสายพันธุ์ดีที่เราคัดสรรมาเพื่อคุณโดยเฉพาะ", image: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800" },
     { title: "สั่งง่าย จ่ายสะดวก", desc: "ไม่ต้องรอนาน สั่งเครื่องดื่มแก้วโปรดล่วงหน้าและชำระเงินได้ทันทีผ่านแอป", image: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?auto=format&fit=crop&q=80&w=800" },
     { title: "สิทธิพิเศษสำหรับคุณ", desc: "สะสมแต้มแลกรับส่วนลดและของรางวัลมากมายในทุกๆ การสั่งซื้อ", image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=800" }
   ];
@@ -871,7 +871,8 @@ const MainApp = ({ onLogout }) => {
   return (
     <div
       ref={scrollContainerRef}
-      className={`h-[100dvh] bg-[#FDFDFD] text-[#111827] select-none ${isScrollLocked ? 'overflow-hidden' : 'pb-32 overflow-y-auto'}`}
+      className={`w-full bg-[#FDFDFD] text-[#111827] select-none ${isScrollLocked ? 'overflow-hidden' : 'pb-32 overflow-y-auto'}`}
+      style={{ height: '100%', height: '-webkit-fill-available' }}
       onScroll={handleScroll}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMoveOnBody}
@@ -905,7 +906,7 @@ const MainApp = ({ onLogout }) => {
         {currentPage === 'home' && (
           <div className="space-y-12">
             <section>
-              <h2 className="text-xl font-black text-[#111827] mb-5 px-1 flex justify-between items-center">ข่าวสารข่าวและโปรโมชั่น <ArrowRight size={20} className="text-gray-300" /></h2>
+              <h2 className="text-xl font-black text-[#111827] mb-5 px-1 flex justify-between items-center">ข่าวสารและโปรโมชั่น <ArrowRight size={20} className="text-gray-300" /></h2>
               <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-[18px] px-[18px]">
                 {MOCK_DATA.news.map(n => (
                   <div key={n.id} className="w-[280px] min-w-[280px] h-48 relative rounded-[32px] overflow-hidden shadow-lg border border-gray-100 bg-white flex-shrink-0">
@@ -1165,6 +1166,3 @@ const App = () => {
 };
 
 export default App;
-
-
-
