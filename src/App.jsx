@@ -905,7 +905,7 @@ const MainApp = ({ onLogout }) => {
         {currentPage === 'home' && (
           <div className="space-y-12">
             <section>
-              <h2 className="text-xl font-black text-[#111827] mb-5 px-1 flex justify-between items-center">ข่าวสารและโปรโมชั่น <ArrowRight size={20} className="text-gray-300" /></h2>
+              <h2 className="text-xl font-black text-[#111827] mb-5 px-1 flex justify-between items-center">ข่าวสารข่าวและโปรโมชั่น <ArrowRight size={20} className="text-gray-300" /></h2>
               <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-[18px] px-[18px]">
                 {MOCK_DATA.news.map(n => (
                   <div key={n.id} className="w-[280px] min-w-[280px] h-48 relative rounded-[32px] overflow-hidden shadow-lg border border-gray-100 bg-white flex-shrink-0">
@@ -1165,4 +1165,5 @@ const App = () => {
 };
 
 export default App;
+
 
