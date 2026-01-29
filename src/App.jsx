@@ -196,9 +196,8 @@ const BouncingDotsLoader = ({ style }) => (
 
 const PersistentHeader = ({ title, scrollProgress, onProfileClick }) => (
   <div className="fixed top-0 left-0 right-0 z-[100] pointer-events-none" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-    <div className="absolute top-0 left-0 right-0 h-[160px]"
+    <div className="absolute top-0 left-0 right-0 h-[60px]"
       style={{
-        paddingTop: 'env(safe-area-inset-top)',
         background: `linear-gradient(to bottom,
           #ffffff 0%,
           ${alpha('#ffffff', '0.98')} 25%,
@@ -208,7 +207,7 @@ const PersistentHeader = ({ title, scrollProgress, onProfileClick }) => (
       }}
     />
     <div className="relative pt-4 pb-2 px-[18px] flex justify-between items-center"
-      style={{ marginTop: '100px', opacity: 1 - scrollProgress, transform: `translateY(${-(scrollProgress * 15)}px)`, transition: 'opacity 0.2s ease-out, transform 0.2s ease-out' }}>
+      style={{ opacity: 1 - scrollProgress, transform: `translateY(${-(scrollProgress * 15)}px)`, transition: 'opacity 0.2s ease-out, transform 0.2s ease-out' }}>
       <h1 className="text-[26px] font-black tracking-tight text-gray-900">{title}</h1>
       <button onClick={onProfileClick} className="w-10 h-10 rounded-full border border-gray-100 overflow-hidden shadow-sm bg-white pointer-events-auto active:scale-90 transition-transform">
         <img src={MOCK_DATA.user.photo} alt="user" className="w-full h-full object-cover" />
@@ -860,13 +859,12 @@ const MainApp = ({ onLogout }) => {
     onLogout();
   };
 
-  const correctedMainPaddingTop = 180 + pullDistance;
+  const correctedMainPaddingTop = 80 + pullDistance;
 
   return (
     <div
       ref={scrollContainerRef}
-      className={`h-[100dvh] bg-[#FDFDFD] text-[#111827] select-none ${isScrollLocked ? 'overflow-hidden' : 'overflow-y-auto'}`}
-      style={{ paddingBottom: 'calc(100px + env(safe-area-inset-bottom))' }}
+      className={`h-[100dvh] bg-[#FDFDFD] text-[#111827] select-none ${isScrollLocked ? 'overflow-hidden' : 'pb-32 overflow-y-auto'}`}
       onScroll={handleScroll}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMoveOnBody}
