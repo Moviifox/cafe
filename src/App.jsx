@@ -1085,7 +1085,7 @@ const MainApp = ({ onLogout }) => {
       {showLogoutConfirm && <LogoutConfirmModal onConfirm={handleLogout} onCancel={() => setShowLogoutConfirm(false)} />}
 
       {showProfile && (
-        <div className="fixed inset-0 z-[300] bg-[#f2f2f7] p-[18px]">
+        <div className="fixed inset-0 z-[300] bg-[#fcfcfc] p-[18px]">
           <div className="flex justify-between items-center mb-10 mt-6 px-2"><h2 className="text-2xl font-black">โปรไฟล์</h2><button onClick={() => setShowProfile(false)} className="p-2 bg-white rounded-full shadow-sm"><X size={24}/></button></div>
           <div className="rounded-[40px] p-10 text-white shadow-2xl relative overflow-hidden mb-10" style={{ backgroundColor: '#1c1c1e' }}>
               <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px]" style={{ backgroundColor: alpha('#00704A', '0.2') }}></div>
@@ -1154,5 +1154,6 @@ const App = () => {
     </>
   );
 };
+
 
 export default App;
