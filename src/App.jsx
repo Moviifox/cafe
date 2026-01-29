@@ -460,8 +460,8 @@ const MenuDetailModal = ({ menu, onClose, onConfirm, onDelete, isEditMode = fals
 
 // --- DELETE CONFIRMATION MODAL ---
 const DeleteConfirmModal = ({ onConfirm, onCancel }) => (
-    <div className="fixed inset-0 z-[300] backdrop-blur-sm flex items-center justify-center p-6" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-        <div className="bg-white rounded-[32px] p-8 w-full max-w-xs shadow-2xl text-center">
+    <div className="fixed inset-0 z-[300] backdrop-blur-sm flex items-end justify-center p-6 animate-in fade-in duration-200" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+        <div className="bg-white rounded-[32px] p-8 pb-6 w-full max-w-full shadow-2xl text-center animate-in zoom-in-95 duration-200">
             <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 text-red-500"><Trash2 size={36} strokeWidth={2} /></div>
             <h3 className="text-xl font-black text-gray-900 mb-2">ยืนยันการลบ?</h3>
             <p className="text-gray-500 text-sm mb-8 leading-relaxed font-medium">คุณต้องการลบรายการนี้ออกจากออเดอร์ใช่หรือไม่</p>
@@ -476,7 +476,7 @@ const DeleteConfirmModal = ({ onConfirm, onCancel }) => (
 // --- LOGOUT CONFIRMATION MODAL ---
 const LogoutConfirmModal = ({ onConfirm, onCancel }) => (
     <div className="fixed inset-0 z-[350] backdrop-blur-sm flex items-center justify-center p-6 animate-in fade-in duration-200" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-        <div className="bg-white rounded-[32px] p-8 w-full max-w-xs shadow-2xl text-center animate-in zoom-in-95 duration-200">
+        <div className="bg-white rounded-[32px] p-8 pb-6 w-full max-w-full shadow-2xl text-center animate-in zoom-in-95 duration-200">
             <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 text-red-500">
                 <LogOut size={36} strokeWidth={2} className="ml-1" />
             </div>
@@ -1085,10 +1085,10 @@ const MainApp = ({ onLogout }) => {
       {showLogoutConfirm && <LogoutConfirmModal onConfirm={handleLogout} onCancel={() => setShowLogoutConfirm(false)} />}
 
       {showProfile && (
-        <div className="fixed inset-0 z-[300] bg-[#fcfcfc] p-[18px]">
-          <div className="flex justify-between items-center mb-10 mt-6 px-2"><h2 className="text-2xl font-black">โปรไฟล์</h2><button onClick={() => setShowProfile(false)} className="p-2 bg-white rounded-full shadow-sm"><X size={24}/></button></div>
+        <div className="fixed inset-0 z-[300] bg-gradient-to-b from-[#fcfcfc] to-[#f4f4f7] p-[18px]">
+          <div className="flex justify-between items-center mb-8 mt-0 px-0"><h2 className="text-2xl font-black">โปรไฟล์</h2><button onClick={() => setShowProfile(false)} className="p-2 bg-white border border-[#f3f4f6] rounded-full shadow-sm"><X size={24}/></button></div>
           <div className="rounded-[40px] p-10 text-white shadow-2xl relative overflow-hidden mb-10" style={{ backgroundColor: '#1c1c1e' }}>
-              <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px]" style={{ backgroundColor: alpha('#00704A', '0.2') }}></div>
+              <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px]" style={{ backgroundColor: alpha('#00704A', '0.4') }}></div>
               <div className="flex gap-4 items-center mb-10 relative z-10">
                   <img src={MOCK_DATA.user.photo} className="w-16 h-16 rounded-2xl border border-white/20" alt="profile" />
                   <div>
@@ -1104,7 +1104,7 @@ const MainApp = ({ onLogout }) => {
                   <QrCode size={50} className="opacity-30" />
               </div>
           </div>
-          <button onClick={() => setShowLogoutConfirm(true)} className="w-full py-5 text-red-500 rounded-[28px] shadow-sm bg-white font-bold flex items-center justify-center gap-2"><LogOut size={20} /> ออกจากระบบ</button>
+          <button onClick={() => setShowLogoutConfirm(true)} className="w-full py-5 text-red-500 rounded-[28px] shadow-sm bg-white border border-[#f3f4f6] font-bold flex items-center justify-center gap-2"><LogOut size={20} /> ออกจากระบบ</button>
         </div>
       )}
 
@@ -1155,7 +1155,4 @@ const App = () => {
   );
 };
 
-
 export default App;
-
-
