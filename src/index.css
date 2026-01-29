@@ -2,30 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-/* iOS Safari PWA viewport fix */
-html {
+/* Lock the document scroll to prevent bounce/rubber-banding */
+html,
+body,
+#root {
   height: 100%;
-  height: -webkit-fill-available;
+  width: 100%;
   overflow: hidden;
+  overscroll-behavior: none;
 }
 
 body {
   margin: 0;
-  padding: 0;
-  height: 100%;
-  height: -webkit-fill-available;
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
   background: #FDFDFD;
-  overflow: hidden;
-  position: fixed;
-  width: 100%;
-  top: 0;
-  left: 0;
-}
-
-#root {
-  height: 100%;
-  height: -webkit-fill-available;
-  overflow: hidden;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
